@@ -4,11 +4,13 @@
 #include "RoboClaw.h"
 #include "SPI.h"
 
-void arch_drive_setup(){
+void motor_setup(){
 	SoftwareSerial serial(10,11);	
 	RoboClaw roboclaw(&serial,10000);
 
 	#define address 0x80
+}
+void bt_setup(){
 
 	USB Usb;
 	//USBHub Hub1(&Usb); // Some dongles have a hub inside
@@ -28,7 +30,8 @@ void arch_drive_setup(){
 
 	int Upper_thres = 137;
 	int Lower_thres = 117;
-
+}
+void arch_drive_setup(){
 	//Serial for USB Host over main serial
 	Serial.begin(115200);
 #if !defined(__MIPSEL__)
@@ -52,11 +55,13 @@ void screw_drive(){
 
 		/*TODO: Fix Map levels. Best guess is 157 is the middle of the controller. To be tested
 		when controller connection working*/
-		left_power = map(leftjoystick_reading, 0, 314, 0, 127); //Maps analog output of joystick to ForwardsBackwards
-		right_power = map(rightjoystick_reading, 0, 314, 0, 127); //Maps analog output to ForwardsBackwards levels
+		left_power = map(leftjoystick_reading, 0, 255, 84, 44); //Maps analog output of joystick to ForwardsBackwards
+		right_power = map(rightjoystick_reading, 0, 255, 84, 44); //Maps analog output to ForwardsBackwards levels
 
 		if(leftjoystick_reading < Lower_thres || leftjoystick_reading > Upper_thres){
 			roboclaw.ForwardsBackwardsM1(address, left_power);
+			Serial.print("Left Power: ")
+			Serial.print(left_power);
 		}
 
 		if (rightjoystick_reading < Lower_thres || rightjoystick_reading > Upper_thres)

@@ -10,13 +10,20 @@ RoboClaw roboclaw(&serial,10000);
 
 #define address 0x80
 
+int power = 104;
+
 void setup() {
   //Open roboclaw serial ports
   roboclaw.begin(38400);
 }
 
 void loop() {
-  roboclaw.ForwardM1(address,12); //start Motor1 forward at half speed
-  roboclaw.BackwardM2(address, 12); 
+  roboclaw.ForwardBackwardM1(address, power); //start Motor1 forward at half speed
+  roboclaw.ForwardBackwardM2(address, 64); 
   delay(2000);
+
+  roboclaw.ForwardBackwardM1(address, 64); //start Motor1 forward at half speed
+  roboclaw.ForwardBackwardM2(address, power); 
+  delay(2000);
+
  }
