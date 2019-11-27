@@ -9,8 +9,8 @@ RoboClaw roboclaw(&serial,10000);
 
 #define address 0x80
 
-bool printAngle, printTouch;
-uint8_t oldL2Value, oldR2Value;
+//bool printAngle, printTouch;
+//uint8_t oldL2Value, oldR2Value;
 
 int Upper_thres = 137;
 int Lower_thres = 117;
@@ -19,6 +19,10 @@ int left_power;
 int right_power;
 int leftjoystick_reading;
 int rightjoystick_reading;
+
+bool ledON;
+bool motor1ON = false;
+bool motor2ON = false;
 
 USB Usb;
 //USBHub Hub1(&Usb); // Some dongles have a hub inside
@@ -34,54 +38,86 @@ BTD Btd(&Usb); // You have to create the Bluetooth Dongle instance like so
 PS4BT PS4(&Btd);
 
 void setup(){
-  //Serial for RoboClaw
-    Serial.begin(38400); 
-  
-    //Serial for USB Host over main serial
-#if !defined(__MIPSEL__)
-    while (!Serial); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
-#endif
-   if (Usb.Init() == -1) {
-     Serial.print(F("\r\nOSC did not start"));
-     while (1); // Halt
-     digitalWrite(LED_BUILTIN, HIGH);
-   }
-    Serial.print(F("\r\nPS4 Bluetooth Library Started"));
-    digitalWrite(LED_BUILTIN, LOW);
 
+  Serial.begin(115200);
+  Serial.print("Main startup...")
+   
+#if !defined(__MIPSEL__)
+  while (!Serial); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
+#endif
+
+  if (Usb.Init() == -1) {
+    Serial.print(F("\r\nOSC did not start"));
+    while (1); // Halt
+  }
+  Serial.print(F("\r\nPS4 Bluetooth Library Started"));
+ 
+  //Serial for RoboClaw
+    roboclaw.begin(38400); 
+    delay(2000);
+
+  //Set RoboClaw Limits
+  roboclaw.SetMainVoltages(address, 140, 190); //(address, minV, maxV) based on 0.1V, so 140 -> 14V
+  
 }
 
 void loop(){
   Usb.Task();
+  
+  roboclaw.ForwardBackwardM1(address, 104); //start Motor1 forward at half speed
+  roboclaw.ForwardBackwardM2(address, 64); 
+  delay(2000);
 
-  roboclaw.ForwardBackwardM1(address, 50);
+  roboclaw.ForwardBackwardM1(address, 64); //start Motor1 forward at half speed
+  roboclaw.ForwardBackwardM2(address, 104); 
+  delay(2000);
 
-  if (PS4.connected())
+  digitalWrite(6, HIGH);
+
+  /*if (PS4.connected())
   {
-   
+
+    digitalWrite(7, HIGH);
+    
     leftjoystick_reading = PS4.getAnalogHat(LeftHatY);
     rightjoystick_reading = PS4.getAnalogHat(RightHatY);
 
     left_power = map(leftjoystick_reading, 0, 255, 84, 44); //Maps analog output of joystick to ForwardsBackwards
     right_power = map(rightjoystick_reading, 0, 255, 84, 44); //Maps analog output to ForwardsBackwards levels
 
-    if(leftjoystick_reading < Lower_thres || leftjoystick_reading > Upper_thres){
+    //if(leftjoystick_reading < Lower_thres || leftjoystick_reading > Upper_thres)
 
-      PS4.setLed(Red);
-    }
-    
-    else{
-      PS4.setLed(Green);
-    }
-
-    if (rightjoystick_reading < Lower_thres || rightjoystick_reading > Upper_thres)
+    if (PS4.getButtonClick(SQUARE))
     {
-      roboclaw.ForwardBackwardM2(address, right_power);
-      PS4.setRumbleOn(RumbleLow);
-    }
-    else{
+      if (motor1ON){
+      roboclaw.ForwardBackwardM1(address, 64);
       PS4.setRumbleOff();
+      motor1ON = false;
+      }
+    
+      else{
+      roboclaw.ForwardBackwardM1(address, 75);
+      PS4.setRumbleOn(RumbleLow);
+      motor1ON = true;
+      }
     }
-  }
+
+    //if (rightjoystick_reading < Lower_thres || rightjoystick_reading > Upper_thres)
+
+    if (PS4.getButtonClick(CIRCLE))
+    {
+      if (motor2ON){
+      roboclaw.ForwardBackwardM2(address, 64);
+      PS4.setLed(Yellow);
+      motor2ON = false;
+      }
+
+      else{
+        roboclaw.ForwardBackwardM2(address, 75);
+        PS4.setLed(Blue);
+        motor2ON = true;
+      }
+    }
+  }*/
 }
 
