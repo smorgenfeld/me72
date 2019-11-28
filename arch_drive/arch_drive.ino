@@ -4,7 +4,7 @@
 #include "SPI.h"
 
 
-SoftwareSerial serial(10,11); 
+SoftwareSerial serial(6,7); 
 RoboClaw roboclaw(&serial,10000);
 
 #define address 0x80
@@ -40,7 +40,7 @@ PS4BT PS4(&Btd);
 void setup(){
 
   Serial.begin(115200);
-  Serial.print("Main startup...")
+  Serial.print("Main startup... ");
    
 #if !defined(__MIPSEL__)
   while (!Serial); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
@@ -64,60 +64,40 @@ void setup(){
 void loop(){
   Usb.Task();
   
-  roboclaw.ForwardBackwardM1(address, 104); //start Motor1 forward at half speed
-  roboclaw.ForwardBackwardM2(address, 64); 
-  delay(2000);
-
-  roboclaw.ForwardBackwardM1(address, 64); //start Motor1 forward at half speed
-  roboclaw.ForwardBackwardM2(address, 104); 
-  delay(2000);
-
-  digitalWrite(6, HIGH);
-
-  /*if (PS4.connected())
+  digitalWrite(4, HIGH);
+    
+  if (PS4.connected())
   {
 
-    digitalWrite(7, HIGH);
-    
+    PS4.setLed(Red);
+ 
     leftjoystick_reading = PS4.getAnalogHat(LeftHatY);
     rightjoystick_reading = PS4.getAnalogHat(RightHatY);
 
     left_power = map(leftjoystick_reading, 0, 255, 84, 44); //Maps analog output of joystick to ForwardsBackwards
     right_power = map(rightjoystick_reading, 0, 255, 84, 44); //Maps analog output to ForwardsBackwards levels
 
-    //if(leftjoystick_reading < Lower_thres || leftjoystick_reading > Upper_thres)
-
-    if (PS4.getButtonClick(SQUARE))
-    {
-      if (motor1ON){
-      roboclaw.ForwardBackwardM1(address, 64);
-      PS4.setRumbleOff();
-      motor1ON = false;
-      }
-    
-      else{
-      roboclaw.ForwardBackwardM1(address, 75);
-      PS4.setRumbleOn(RumbleLow);
-      motor1ON = true;
-      }
+    if(leftjoystick_reading < Lower_thres || leftjoystick_reading > Upper_thres){
+      roboclaw.ForwardBackwardM1(address, left_power);
+      Serial.print("Left Power: ");
+      Serial.println(left_power);
     }
 
-    //if (rightjoystick_reading < Lower_thres || rightjoystick_reading > Upper_thres)
-
-    if (PS4.getButtonClick(CIRCLE))
-    {
-      if (motor2ON){
-      roboclaw.ForwardBackwardM2(address, 64);
-      PS4.setLed(Yellow);
-      motor2ON = false;
-      }
-
-      else{
-        roboclaw.ForwardBackwardM2(address, 75);
-        PS4.setLed(Blue);
-        motor2ON = true;
-      }
+    else{
+      roboclaw.ForwardBackwardM1(address, 64); //Stop the motor
     }
-  }*/
+
+    if (rightjoystick_reading < Lower_thres || rightjoystick_reading > Upper_thres){
+      roboclaw.ForwardBackwardM2(address, right_power);
+      Serial.print("Right Power: ");
+      Serial.print(right_power);
+      Serial.print(" Right Joystick Reading: ");
+      Serial.println(rightjoystick_reading);
+    } 
+
+    else{
+      roboclaw.ForwardBackwardM2(address, 64); //Stop the motor
+    }
+  }
 }
 
