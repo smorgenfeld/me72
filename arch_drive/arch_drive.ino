@@ -57,7 +57,7 @@ void setup(){
     delay(2000);
 
   //Set RoboClaw Limits
-  roboclaw.SetMainVoltages(address, 140, 190); //(address, minV, maxV) based on 0.1V, so 140 -> 14V
+  roboclaw.SetMainVoltages(address, 130, 190); //(address, minV, maxV) based on 0.1V, so 130 -> 13V
   
 }
 
@@ -74,21 +74,21 @@ void loop(){
     leftjoystick_reading = PS4.getAnalogHat(LeftHatY);
     rightjoystick_reading = PS4.getAnalogHat(RightHatY);
 
-    left_power = map(leftjoystick_reading, 0, 255, 84, 44); //Maps analog output of joystick to ForwardsBackwards
-    right_power = map(rightjoystick_reading, 0, 255, 84, 44); //Maps analog output to ForwardsBackwards levels
+    left_power = map(leftjoystick_reading, 0, 255, 96, 32u); //Maps analog output of joystick to ForwardsBackwards
+    right_power = map(rightjoystick_reading, 0, 255, 96, 32); //Maps analog output to ForwardsBackwards levels
 
     if(leftjoystick_reading < Lower_thres || leftjoystick_reading > Upper_thres){
-      roboclaw.ForwardBackwardM1(address, left_power);
+      roboclaw.ForwardBackwardM2(address, left_power);
       Serial.print("Left Power: ");
       Serial.println(left_power);
     }
 
     else{
-      roboclaw.ForwardBackwardM1(address, 64); //Stop the motor
+      roboclaw.ForwardBackwardM2(address, 64); //Stop the motor
     }
 
     if (rightjoystick_reading < Lower_thres || rightjoystick_reading > Upper_thres){
-      roboclaw.ForwardBackwardM2(address, right_power);
+      roboclaw.ForwardBackwardM1(address, right_power);
       Serial.print("Right Power: ");
       Serial.print(right_power);
       Serial.print(" Right Joystick Reading: ");
@@ -96,7 +96,7 @@ void loop(){
     } 
 
     else{
-      roboclaw.ForwardBackwardM2(address, 64); //Stop the motor
+      roboclaw.ForwardBackwardM1(address, 64); //Stop the motor
     }
   }
 }
