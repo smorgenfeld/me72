@@ -20,8 +20,6 @@ int right_power;
 int leftjoystick_reading;
 int rightjoystick_reading;
 
-int shooter_power = 20;
-
 bool ledON;
 bool motor1ON = false;
 bool motor2ON = false;
@@ -84,6 +82,10 @@ void loop(){
       Serial.print("Left Power: ");
       Serial.println(left_power);
     }
+    
+    else{
+      roboclaw.ForwardBackwardM1(address, 64);
+    }
 
     if (rightjoystick_reading < Lower_thres || rightjoystick_reading > Upper_thres){
       roboclaw.ForwardBackwardM1(address, right_power);
@@ -93,19 +95,8 @@ void loop(){
       Serial.println(rightjoystick_reading);
     } 
 
-    if (rightjoystick_reading > Lower_thres && rightjoystick_reading < Upper_thres && leftjoystick_reading > Lower_thres && leftjoystick_reading < Upper_thres){
-      roboclaw.ForwardBackwardM1(address, 64); //Stop the motor
-      
-      if (PS4.getButtonClick(TRIANGLE)){
-      //Shooter mode
-        roboclaw.ForwardM1(address, shooter_power);
-        roboclaw.ForwardM2(address, shooter_power);
-      }
-
-      else{
-        roboclaw.ForwardBackwardM1(address, 64);
-        roboclaw.ForwardBackwardM2(address, 64);
-      }
+    else{
+      roboclaw.ForwardBackwardM2(address, 64);
     }
   }
 }
