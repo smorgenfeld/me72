@@ -1,6 +1,6 @@
 #include "PS4BT.h"
 #include "usbhub.h"
-#include "RoboClaw.h"
+#include <RoboClaw.h>
 #include "SPI.h"
 
 
@@ -19,6 +19,8 @@ int left_power;
 int right_power;
 int leftjoystick_reading;
 int rightjoystick_reading;
+
+int shooter_power = 20;
 
 bool ledON;
 bool motor1ON = false;
@@ -83,10 +85,6 @@ void loop(){
       Serial.println(left_power);
     }
 
-    else{
-      roboclaw.ForwardBackwardM2(address, 64); //Stop the motor
-    }
-
     if (rightjoystick_reading < Lower_thres || rightjoystick_reading > Upper_thres){
       roboclaw.ForwardBackwardM1(address, right_power);
       Serial.print("Right Power: ");
@@ -95,8 +93,19 @@ void loop(){
       Serial.println(rightjoystick_reading);
     } 
 
-    else{
+    if (rightjoystick_reading > Lower_thres && rightjoystick_reading < Upper_thres && leftjoystick_reading > Lower_thres && leftjoystick_reading < Upper_thres){
       roboclaw.ForwardBackwardM1(address, 64); //Stop the motor
+      
+      if (PS4.getButtonClick(TRIANGLE)){
+      //Shooter mode
+        roboclaw.ForwardM1(address, shooter_power);
+        roboclaw.ForwardM2(address, shooter_power);
+      }
+
+      else{
+        roboclaw.ForwardBackwardM1(address, 64);
+        roboclaw.ForwardBackwardM2(address, 64);
+      }
     }
   }
 }
