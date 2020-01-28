@@ -121,6 +121,7 @@ void loop(){
     right_power = map(rightjoystick_reading, 0, 255, 96, 32); //Maps analog output to ForwardsBackwards levels
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     if(leftjoystick_reading < Lower_thres || leftjoystick_reading > Upper_thres){
       roboclaw.ForwardBackwardM1(address, left_power);
       Serial.print("Left Power: ");
@@ -189,6 +190,41 @@ void loop(){
       }
 >>>>>>> parent of 3951bd5... Updated arch_drive to work
     }
+=======
+    //if(leftjoystick_reading < Lower_thres || leftjoystick_reading > Upper_thres)
+
+    if (PS4.getButtonClick(SQUARE))
+    {
+      if (motor1ON){
+      roboclaw.ForwardBackwardM1(address, 64);
+      PS4.setRumbleOff();
+      motor1ON = false;
+      }
+    
+      else{
+      roboclaw.ForwardBackwardM1(address, 75);
+      PS4.setRumbleOn(RumbleLow);
+      motor1ON = true;
+      }
+    }
+
+    //if (rightjoystick_reading < Lower_thres || rightjoystick_reading > Upper_thres)
+
+    if (PS4.getButtonClick(CIRCLE))
+    {
+      if (motor2ON){
+      roboclaw.ForwardBackwardM2(address, 64);
+      PS4.setLed(Yellow);
+      motor2ON = false;
+      }
+
+      else{
+        roboclaw.ForwardBackwardM2(address, 75);
+        PS4.setLed(Blue);
+        motor2ON = true;
+      }
+    }
+>>>>>>> parent of 3951bd5... Updated arch_drive to work
   }*/
 }
 
