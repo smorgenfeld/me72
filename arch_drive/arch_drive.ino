@@ -105,12 +105,13 @@ void loop(){
       }
 =======
     if(leftjoystick_reading < Lower_thres || leftjoystick_reading > Upper_thres){
-      roboclaw.ForwardBackwardM2(address, left_power);
+      roboclaw.ForwardBackwardM1(address, left_power);
       Serial.print("Left Power: ");
       Serial.println(left_power);
 >>>>>>> parent of 5fc97d3... Reverted arch_drive.ino
     }
 
+<<<<<<< HEAD
     //if (rightjoystick_reading < Lower_thres || rightjoystick_reading > Upper_thres)
 
 <<<<<<< HEAD
@@ -141,6 +142,22 @@ void loop(){
         roboclaw.ForwardBackwardM2(address, 64);
 >>>>>>> parent of 5fc97d3... Reverted arch_drive.ino
       }
+=======
+    else{
+      roboclaw.ForwardBackwardM1(address, 64); //Stop the motor
+    }
+
+    if (rightjoystick_reading < Lower_thres || rightjoystick_reading > Upper_thres){
+      roboclaw.ForwardBackwardM2(address, right_power);
+      Serial.print("Right Power: ");
+      Serial.print(right_power);
+      Serial.print(" Right Joystick Reading: ");
+      Serial.println(rightjoystick_reading);
+    } 
+
+    else{
+      roboclaw.ForwardBackwardM2(address, 64); //Stop the motor
+>>>>>>> parent of 13725ed... Adjusted the voltage lower level
     }
   }*/
 }
