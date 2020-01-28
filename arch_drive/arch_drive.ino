@@ -1,6 +1,6 @@
 #include "PS4BT.h"
 #include "usbhub.h"
-#include <RoboClaw.h>
+#include "RoboClaw.h"
 #include "SPI.h"
 
 
@@ -23,6 +23,36 @@ int rightjoystick_reading;
 bool ledON;
 bool motor1ON = false;
 bool motor2ON = false;
+
+bool shooter_on = false;
+
+ /*#Steps:
+ 1.Connect the M1_PWM & M2_PWM to UNO digital 3 & 4
+ 2.Connect the M1_EN & M2_EN to UNO digital 2 & 5
+ 3.Connect +5V & GND to UNO 5V & GND
+ */
+
+int E1 = 3;     //M1 Speed Control
+int E2 = 5;     //M2 Speed Control
+int M1 = 23;     //M1 Direction Control
+int M2 = 22;     //M1 Direction Control
+
+void stop(void)                    //Stop
+{
+  digitalWrite(E1,0); 
+  digitalWrite(M1,LOW);    
+  digitalWrite(E2,0);   
+  digitalWrite(M2,LOW);    
+}   
+
+void turn_R (char a,char b)             //Turn Right: Shooter Direction Forward
+{
+  analogWrite (E1,a);
+  digitalWrite(M1,LOW);    
+  analogWrite (E2,b);    
+  digitalWrite(M2,HIGH);
+}
+
 
 USB Usb;
 //USBHub Hub1(&Usb); // Some dongles have a hub inside
@@ -58,7 +88,12 @@ void setup(){
 
   //Set RoboClaw Limits
   roboclaw.SetMainVoltages(address, 130, 190); //(address, minV, maxV) based on 0.1V, so 130 -> 13V
-  
+
+  int i;
+  for(i=2;i<=5;i++)
+    pinMode(i, OUTPUT);  
+  digitalWrite(E1,LOW);   
+  digitalWrite(E2,LOW);
 }
 
 void loop(){
@@ -78,7 +113,7 @@ void loop(){
     right_power = map(rightjoystick_reading, 0, 255, 96, 32); //Maps analog output to ForwardsBackwards levels
 
     if(leftjoystick_reading < Lower_thres || leftjoystick_reading > Upper_thres){
-      roboclaw.ForwardBackwardM2(address, left_power);
+      roboclaw.ForwardBackwardM1(address, left_power);
       Serial.print("Left Power: ");
       Serial.println(left_power);
     }
@@ -88,7 +123,7 @@ void loop(){
     }
 
     if (rightjoystick_reading < Lower_thres || rightjoystick_reading > Upper_thres){
-      roboclaw.ForwardBackwardM1(address, right_power);
+      roboclaw.ForwardBackwardM2(address, right_power);
       Serial.print("Right Power: ");
       Serial.print(right_power);
       Serial.print(" Right Joystick Reading: ");
@@ -97,6 +132,19 @@ void loop(){
 
     else{
       roboclaw.ForwardBackwardM2(address, 64);
+    }
+
+    if(PS4.getButtonClick(TRIANGLE)){
+      if(!shooter_on){
+        PS4.setRumbleOn(RumbleLow);
+        turn_R(16, 16);
+      }
+      else{
+        PS4.setRumbleOff();
+        stop();
+      }
+
+      shooter_on = !shooter_on;
     }
   }
 }
