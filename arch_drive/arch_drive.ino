@@ -20,6 +20,8 @@ int right_power;
 int leftjoystick_reading;
 int rightjoystick_reading;
 
+int shooter_power = 20;
+
 bool ledON;
 bool motor1ON = false;
 bool motor2ON = false;
@@ -85,6 +87,7 @@ void loop(){
     left_power = map(leftjoystick_reading, 0, 255, 84, 44); //Maps analog output of joystick to ForwardsBackwards
     right_power = map(rightjoystick_reading, 0, 255, 84, 44); //Maps analog output to ForwardsBackwards levels
 
+<<<<<<< HEAD
     //if(leftjoystick_reading < Lower_thres || leftjoystick_reading > Upper_thres)
 
     if (PS4.getButtonClick(SQUARE))
@@ -100,10 +103,17 @@ void loop(){
       PS4.setRumbleOn(RumbleLow);
       motor1ON = true;
       }
+=======
+    if(leftjoystick_reading < Lower_thres || leftjoystick_reading > Upper_thres){
+      roboclaw.ForwardBackwardM2(address, left_power);
+      Serial.print("Left Power: ");
+      Serial.println(left_power);
+>>>>>>> parent of 5fc97d3... Reverted arch_drive.ino
     }
 
     //if (rightjoystick_reading < Lower_thres || rightjoystick_reading > Upper_thres)
 
+<<<<<<< HEAD
     if (PS4.getButtonClick(CIRCLE))
     {
       if (motor2ON){
@@ -116,6 +126,20 @@ void loop(){
         roboclaw.ForwardBackwardM2(address, 75);
         PS4.setLed(Blue);
         motor2ON = true;
+=======
+    if (rightjoystick_reading > Lower_thres && rightjoystick_reading < Upper_thres && leftjoystick_reading > Lower_thres && leftjoystick_reading < Upper_thres){
+      roboclaw.ForwardBackwardM1(address, 64); //Stop the motor
+      
+      if (PS4.getButtonClick(TRIANGLE)){
+      //Shooter mode
+        roboclaw.ForwardM1(address, shooter_power);
+        roboclaw.ForwardM2(address, shooter_power);
+      }
+
+      else{
+        roboclaw.ForwardBackwardM1(address, 64);
+        roboclaw.ForwardBackwardM2(address, 64);
+>>>>>>> parent of 5fc97d3... Reverted arch_drive.ino
       }
     }
   }*/
