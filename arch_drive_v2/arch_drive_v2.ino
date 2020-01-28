@@ -1,10 +1,10 @@
-#include "RoboClaw.h"
+#include <RoboClaw.h>
 #include "PS4BT.h"
 #include "usbhub.h"
 
 #define address 0x80
-#define M1_PIN 10
-#define M2_PIN 11
+#define M1_PIN 6
+#define M2_PIN 7
 
 // Satisfy the IDE, which needs to see the include statement in the ino too.
 #ifdef dobogusinclude
@@ -17,7 +17,7 @@ RoboClaw roboclaw(&serial, 10000);
 
 void setup(){
 	Serial.begin(115200);
-	Serial.println("Main startup...")
+	Serial.println("Main startup...");
 
 	PS4_setup();
 	drive_setup();

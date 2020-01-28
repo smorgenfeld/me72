@@ -1,0 +1,7 @@
+Roboclaw troubleshooting notes:
+
+- Can run the Roboclaw on the main script, but requires the roboclaw.begin() command, not a serial begin command.
+
+- If the PS4 connection is done after the Roboclaw begins, the roboclaw will not begin. Testing with the PS4 connection first is currently written, awaiting testing by Elaine and Maheck on 11/26
+
+- Need some kind of delay when using the Analog reading to be sure that the Arduino and motors have enough time to process the power level given. Obviously, the more delay there is the more lag there is. Will have to fine tune this once the motors are working.

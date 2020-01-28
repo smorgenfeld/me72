@@ -9,14 +9,13 @@ double M2_Signal = 0;
 
 void drive_setup(){
 	//Open roboclaw serial ports
-	robowclaw.begin(38400);
-	delay(2000);
+	roboclaw.begin(38400);
 
 	//Stop Motors
 	drive_reset();
 	drive_signaltoscrews();
 
-	Serial.println("Screw drive setup complete.")
+	Serial.println("Screw drive setup complete.");
 }
 
 //Run the actual screws
@@ -41,13 +40,13 @@ void drive_print(){
 //Reset signal to stop
 //TODO: checkk this
 void drive_reset(){
-	M1_Signal = 64;
-	M2_Signal = 64;
+	M1_Signal = speed_zero;
+	M2_Signal = speed_zero;
 }
 
 void drive_ps4signal(){
-	M1_Signal = PS4_getLHatY();
-	M2_Signal = PS4_getRHatY();
+	M1_Signal = PS4_LHatY;
+	M2_Signal = PS4_RHatY;
 }
 
 void drive_signaltoscrews(){
@@ -55,5 +54,5 @@ void drive_signaltoscrews(){
 	M2_Signal = map(M2_Signal, 0, 255, speed_MAX_for, speed_MAX_back);
 
 	roboclaw.ForwardBackwardM1(address, (uint8_t) round(M1_Signal));
-	robowclaw.ForwardBackwardM2(address, (uint8_t) round(M2_Signal));
+	roboclaw.ForwardBackwardM2(address, (uint8_t) round(M2_Signal));
 }

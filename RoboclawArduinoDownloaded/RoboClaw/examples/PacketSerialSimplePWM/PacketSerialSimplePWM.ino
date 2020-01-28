@@ -18,12 +18,12 @@ void setup() {
 }
 
 void loop() {
-  roboclaw.ForwardBackwardM1(address, power); //start Motor1 forward at half speed
+  roboclaw.ForwardBackwardM1(address, 104); //start Motor1 forward at half speed
   roboclaw.ForwardBackwardM2(address, 64); 
   delay(2000);
 
   roboclaw.ForwardBackwardM1(address, 64); //start Motor1 forward at half speed
-  roboclaw.ForwardBackwardM2(address, power); 
+  roboclaw.ForwardBackwardM2(address, 104); 
   delay(2000);
 
  }
