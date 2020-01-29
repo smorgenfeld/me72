@@ -1,6 +1,6 @@
 #include <Servo.h>
 
-#define RUDDER_PIN 3
+#define RUDDER_PIN 6
 
 Servo rudder;
 
