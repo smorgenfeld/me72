@@ -33,19 +33,20 @@ BTD Btd(&Usb); // You have to create the Bluetooth Dongle instance like so
 
 //*
 //* DO NOT UNCOMMENT THE NEXT LINE, WE NO LONGER WANT TO PAIR
-//PS4BT PS4(&Btd, PAIR);
+PS4BT PS4(&Btd, PAIR);
 //*
 //*
 
 // After that you can simply create the instance like so and then press the PS button on the device
-PS4BT PS4(&Btd);
+//PS4BT PS4(&Btd);
 
 
 // values from the remote that we want to capture/store
 int L2_val = 0;
+int LY_HAT = 0;
 
 // speed values for each motor
-int servo_val = 0;
+int rudder_val = 0;
 int fan_val = 0;
 
 
@@ -70,25 +71,46 @@ void setup() {
 void loop() {
   Usb.Task();
 
-  // write speeds to the motors
-  //rudder.write(servo_val);
-  fan.write(fan_val);
-  
+  // reset the speed and servo values in case connection issues occur :(
+  rudder_val = 0;
+  fan_val = 0;
+
   if (PS4.connected()) {
       PS4.setLed(Green);
     
       //PS4.setRumbleOn(RumbleHigh);
+     if (PS4.getAnalogHat(LeftHatY) > 137 || PS4.getAnalogHat(LeftHatY) < 117) {
+
+          
+       LY_HAT = PS4.getAnalogHat(LeftHatY);
+       
+       fan_val = 180 - map(LY_HAT, 0, 100, 0, 180);
+
+       if(fan_val < 0) {
+        
+        fan_val = 0; 
+        
+       }
+       
+       Serial.println(fan_val);
+
      
+     }
      if(PS4.getAnalogButton(L2)) {
 
       // get the L2 values from the controller
       L2_val = PS4.getAnalogButton(L2);
 
       // map this input from the controller to the motor's input range
-      //servo_val = map(L2_val, 0, 255, 0, 100);
-      fan_val = map(L2_val, 0, 255, 0, 180);
+      rudder_val = map(L2_val, 0, 255, 0, 100);
+      
       
      }
     
   }
+  
+  // write speeds to the motors
+  rudder.write(rudder_val);
+  fan.write(fan_val);
+  
 }
