@@ -24,6 +24,11 @@
 #define RUDDER_MAX 100
 #define RUDDER_CENTER 50
 
+// define the ZERO, MAX Forward, and MAX Backward speed for RS550
+#define TANK_MAX_F 127
+#define TANK_MAX_B 0
+#define TANK_ZERO 64
+
 // servo objects for our motors
 Servo rudder;
 Servo fan;
@@ -68,12 +73,12 @@ BTD Btd(&Usb); // You have to create the Bluetooth Dongle instance like so
 
 //*
 //* DO NOT UNCOMMENT THE NEXT LINE, WE NO LONGER WANT TO PAIR
-PS4BT PS4(&Btd, PAIR);
+//PS4BT PS4(&Btd, PAIR);
 //*
 //*
 
 // After that you can simply create the instance like so and then press the PS button on the device
-//PS4BT PS4(&Btd);
+PS4BT PS4(&Btd);
 
 
 // values from the remote that we want to capture/store
@@ -148,21 +153,33 @@ void loop() {
 
       if (tank_mode) {
 
+        rudder.attach(RUDDER_PIN);
+        pinMode(FAN_PIN, OUTPUT);
+        //fan.attach(FAN_PIN);
+
+        //pinMode(RUDDER_PIN, OUTPUT);
+
         // if we're leaving tank mode, adjust the tank motors to no speed
-        roboclaw.ForwardBackwardM1(address, 64);
-        roboclaw.ForwardBackwardM2(address, 64);
+        roboclaw.ForwardBackwardM1(address, TANK_ZERO);
+        roboclaw.ForwardBackwardM2(address, TANK_ZERO);
 
         // change PS4 LED to green (GREEN = FAN MODE)
-        PS4.setLed(Green);
+        PS4.setLed(Blue);
 
       }
       else {
         // change PS4 LED to blue (BLUE = TANK MODE)
-        PS4.setLed(Blue);
+        PS4.setLed(Green);
+
+        //pinMode(RUDDER_PIN, INPUT);
 
         // if we're leaving fan mode, center the rudder and turn off fan
         rudder.write(RUDDER_CENTER);
         fan.write(0);
+
+        pinMode(FAN_PIN, INPUT);
+        rudder.detach();
+        //fan.detach();
 
       }
 
@@ -174,33 +191,37 @@ void loop() {
     if ((leftjoystick_reading < Lower_thres || leftjoystick_reading > Upper_thres) && tank_mode) {
 
       // get the correct power setting for the left and right motors
-      left_power = map(leftjoystick_reading, 0, 255, 128, 0); //Maps analog output of joystick to ForwardsBackwards
+      left_power = map(leftjoystick_reading, 0, 255, TANK_MAX_F, TANK_MAX_B); //Maps analog output of joystick to ForwardsBackwards
 
       // set power of left tank motor
       roboclaw.ForwardBackwardM1(address, left_power);
       Serial.print("Left tank Power: ");
       Serial.println(left_power);
+      //fan.write(0);
     }
 
     // if it's not getting the signal, set left tank power to zero
-    else {
-      roboclaw.ForwardBackwardM1(address, 64);
+    else if (tank_mode) {
+      roboclaw.ForwardBackwardM1(address, TANK_ZERO);
+      //fan.write(0);
     }
 
     // TANK_MODE: check the right joystick setting (make sure it's being set)
     if ((rightjoystick_reading < Lower_thres || rightjoystick_reading > Upper_thres) && tank_mode) {
       // get the correct power setting for the left and right motors
-      right_power = map(rightjoystick_reading, 0, 255, 128, 0); //Maps analog output to ForwardsBackwards levels
-
+      right_power = map(rightjoystick_reading, 0, 255, TANK_MAX_F, TANK_MAX_B); //Maps analog output to ForwardsBackwards levels
+      
       // set power of right tank motor
       roboclaw.ForwardBackwardM2(address, right_power);
       Serial.print("Right tank Power: ");
       Serial.println(right_power);
+      //fan.write(0);
     }
 
     // if it's not getting the signal, set right tank power to zero
-    else {
-      roboclaw.ForwardBackwardM2(address, 64);
+    else if (tank_mode) {
+      roboclaw.ForwardBackwardM2(address, TANK_ZERO);
+      //fan.write(0);
     }
 
     // FAN_MODE: check the right joystick setting (make sure it's being set)
@@ -234,11 +255,11 @@ void loop() {
     }
 
     // if it's not getting the signal, set rudder to center
-    //else {
-    //  rudder.write(RUDDER_CENTER);
-    //  Serial.print("Rudder pos: ");
-    //  Serial.println(RUDDER_CENTER);
-    //}
+    else if(!tank_mode){
+      rudder.write(RUDDER_CENTER);
+      Serial.print("Rudder pos: ");
+      Serial.println(RUDDER_CENTER);
+    }
 
   }
 
