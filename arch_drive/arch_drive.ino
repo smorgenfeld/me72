@@ -32,7 +32,7 @@ void loop(){
   {
 
     PS4.setLed(Red);
- 
+    drive_screws();
     if(PS4.getButtonClick(TRIANGLE)){
       if(!shooter_on){
         PS4.setRumbleOn(RumbleLow);
