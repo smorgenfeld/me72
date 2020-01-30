@@ -19,13 +19,23 @@ void rc_setup(void)
   roboclaw.SetMainVoltages(address, 130, 190); //(address, minV, maxV) based on 0.1V, so 130 -> 13V
 }
 
+int cubic_map(int x, int motor_min, int joystick_stop, int motor_stop){
+  return (motor_min - motor_stop)/(-joystick_stop)^3 * (x - joystick_stop)^3 + motor_stop;
+}
+
 void drive_screws(void)
 {
     leftjoystick_reading = PS4.getAnalogHat(LeftHatY);
     rightjoystick_reading = PS4.getAnalogHat(RightHatY);
 
-    left_power = map(leftjoystick_reading, 0, 255, 96, 32u); //Maps analog output of joystick to ForwardsBackwards
+    left_power = map(leftjoystick_reading, 0, 255, 96, 32); //Maps analog output of joystick to ForwardsBackwards
     right_power = map(rightjoystick_reading, 0, 255, 96, 32); //Maps analog output to ForwardsBackwards levels
+
+    /*
+     * //To try cubic functions, uncomment the following code:
+     * left_power = cubic_map(leftjoystick_reading, MOTOR_MIN, JOYSTICK_STOP, MOTOR_STOP);
+     * right_power = cubic_map(rightjoystick_reading, MOTOR_MIN, JOYSTICK_STOP, MOTOR_STOP);
+     */
 
     if(leftjoystick_reading < Lower_thres || leftjoystick_reading > Upper_thres){
       roboclaw.ForwardBackwardM1(address, left_power);
