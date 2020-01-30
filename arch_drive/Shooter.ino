@@ -1,3 +1,7 @@
+//-------------------------------------
+//-------------DEFINITIONS-------------
+//-------------------------------------
+
 /*Define Motor Pins for Flywheel
   #Steps:
  1.Connect the M1_PWM & M2_PWM to UNO digital 3 & 4
@@ -29,6 +33,18 @@ Servo scooper;
 
 bool scoop_up;
 
+//Grabber Definitions
+Servo grabber;
+
+#define GRAB_PIN 50
+#define GRAB_DOWN 0
+#define GRAB_UP 135
+
+bool grabber_on;
+
+//-------------------------------------
+//--------------SETUP------------------
+//-------------------------------------
 
 void ball_setup(void)
 {
@@ -39,6 +55,12 @@ void ball_setup(void)
   scooper.attach(SCOOP_PIN);
   scooper.write(SCOOP_UP);
   scooper.detach();
+  scoop_up = true;
+
+  grabber.attach(GRAB_PIN);
+  grabber.write(GRAB_UP);
+  grabber.detach();
+  grabber_on = false;
   
   int i;
   for(i=2;i<=5;i++)
@@ -46,6 +68,10 @@ void ball_setup(void)
   digitalWrite(E1,LOW);   
   digitalWrite(E2,LOW);
 }
+
+//-------------------------------------
+//-------------SHOOTER-----------------
+//-------------------------------------
 
 
 void stop(void)                    //Stop
@@ -73,6 +99,10 @@ void shoot_ball ()             //Turn Right: Shooter Direction Forward
   //belt.detach();
 }
 
+//-------------------------------------
+//-------------SCOOPER-----------------
+//-------------------------------------
+
 void scoop_ball (void){
   if(!scoop_up)
   {
@@ -91,3 +121,24 @@ void scoop_ball (void){
   scoop_up = !scoop_up;
 }
 
+//-------------------------------------
+//-------------GRABBER-----------------
+//-------------------------------------
+
+void grab_tower (void){
+  if(!grabber_on)
+  {
+    scooper.attach(GRAB_PIN);
+    scooper.write(GRAB_DOWN);
+    scooper.detach();
+  }
+
+  else
+  {
+    scooper.attach(GRAB_PIN);
+    scooper.write(GRAB_UP);
+    scooper.detach();
+  }
+
+  grabber_on = !grabber_on;
+}

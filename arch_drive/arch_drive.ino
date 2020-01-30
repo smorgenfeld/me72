@@ -53,6 +53,11 @@ void loop(){
     {
       scoop_ball();
     }
+
+    if (PS4.getButtonClick(SQUARE))
+    {
+      grab_tower();
+    }
   }
 }
 
