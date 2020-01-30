@@ -2,6 +2,7 @@
 #include "usbhub.h"
 #include "RoboClaw.h"
 #include "SPI.h"
+#include <Servo.h>
 
 
 SoftwareSerial serial(28,29); 
@@ -22,7 +23,7 @@ PS4BT PS4(&Btd);
 void setup(){
   rc_setup();
   PS4_setup();
-  shooter_setup();
+  ball_setup();
 }
 
 void loop(){
@@ -33,10 +34,12 @@ void loop(){
 
     PS4.setLed(Red);
     drive_screws();
+
+    
     if(PS4.getButtonClick(TRIANGLE)){
       if(!shooter_on){
         PS4.setRumbleOn(RumbleLow);
-        turn_R(16, 16);
+        shoot_ball();
       }
       else{
         PS4.setRumbleOff();
@@ -44,6 +47,11 @@ void loop(){
       }
 
       shooter_on = !shooter_on;
+    }
+
+    if (PS4.getButtonClick(CIRCLE))
+    {
+      scoop_ball();
     }
   }
 }
