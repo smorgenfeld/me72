@@ -231,19 +231,22 @@ void loop() {
     // FAN_MODE: check the right joystick setting (make sure it's being set)
     if (rightjoystick_reading > Upper_thres && !tank_mode) {
 
-      // if the fan was going forward and we're commanding to reverse, we need to change direction state
-      if(fan_forward) {
+//      // if the fan was going forward and we're commanding to reverse, we need to change direction state
+//      if(fan_forward) {
+//
+//         // stop the fan
+//         fan.write(0);
+//
+//         // send command to reverse the direction of the ESC
+//         fan_reverse.write(180);
+//
+//         // reverse fan direction state boolean
+//         fan_forward = !fan_forward;
+//        
+//      }
+      fan_reverse.write(180);
 
-         // stop the fan
-         fan.write(0);
-
-         // send command to reverse the direction of the ESC
-         fan_reverse.write(180);
-
-         // reverse fan direction state boolean
-         fan_forward = !fan_forward;
-        
-      }
+      Serial.print(fan_reverse.read());
  
       // map the fan values from 0 to 180 (in the lower stick area)
       fan_val = map(rightjoystick_reading - Upper_thres, 0, 255 - Upper_thres, 0, 180);
@@ -256,19 +259,22 @@ void loop() {
     else if(rightjoystick_reading < Lower_thres && !tank_mode) {
 
       // if the fan was going reverse and we're commanding to forward, we need to change direction state
-      if(!fan_forward) {
+//      if(!fan_forward) {
+//
+//         // stop the fan
+//         fan.write(0);
+//
+//         // send command to reverse the direction of the ESC
+//         fan_reverse.write(0);
+//
+//         // reverse fan direction state boolean
+//         fan_forward = !fan_forward;
+//        
+//      }
 
-         // stop the fan
-         fan.write(0);
+      fan_reverse.write(0);
 
-         // send command to reverse the direction of the ESC
-         fan_reverse.write(0);
-
-         // reverse fan direction state boolean
-         fan_forward = !fan_forward;
-        
-      }
-
+      Serial.print(fan_reverse.read());
       // map the magnitude of the fan (in the upper region of stick)
       fan_val = map(Lower_thres - rightjoystick_reading, 0, Lower_thres, 0, 180);
 
@@ -283,9 +289,9 @@ void loop() {
     else if (!tank_mode) {
 
       // stop the fan
-      fan.write(0);
+      fan.write(0);  
 
-      Serial.print("Stopping fan");
+      Serial.print("Stopping fan"); 
       
     }
 
@@ -295,7 +301,7 @@ void loop() {
       // map the rudder values from min to max values
       rudder_val = map(ljX_reading, 0, 255, RUDDER_MIN, RUDDER_MAX);
 
-      rudder.write(rudder_val);
+      rudder.write(RUDDER_MAX - rudder_val);
       Serial.print("Rudder pos: ");
       Serial.println(rudder_val);
     }
