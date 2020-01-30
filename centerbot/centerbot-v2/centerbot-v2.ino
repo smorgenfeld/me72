@@ -18,6 +18,7 @@
 // define actuator pins
 #define RUDDER_PIN 3
 #define FAN_PIN 5
+#define FAN_REVERSE_PIN 9
 
 // define the rudder min, max, and center position (on 0 to 180 scale)
 #define RUDDER_MIN 0
@@ -32,6 +33,7 @@
 // servo objects for our motors
 Servo rudder;
 Servo fan;
+Servo fan_reverse;
 
 // tank mode automatically activated
 boolean tank_mode = false;
@@ -51,11 +53,9 @@ int leftjoystick_reading;
 int rightjoystick_reading;
 int ljX_reading;
 
-bool ledON;
-bool motor1ON = false;
-bool motor2ON = false;
 
-bool shooter_on = false;
+// boolean for when the fan is moving forward
+bool fan_forward = true;
 
 // Satisfy the IDE, which needs to see the include statment in the ino too.
 #ifdef dobogusinclude
@@ -73,12 +73,12 @@ BTD Btd(&Usb); // You have to create the Bluetooth Dongle instance like so
 
 //*
 //* DO NOT UNCOMMENT THE NEXT LINE, WE NO LONGER WANT TO PAIR
-//PS4BT PS4(&Btd, PAIR);
+PS4BT PS4(&Btd, PAIR);
 //*
 //*
 
 // After that you can simply create the instance like so and then press the PS button on the device
-PS4BT PS4(&Btd);
+//PS4BT PS4(&Btd);
 
 
 // values from the remote that we want to capture/store
@@ -115,6 +115,7 @@ void setup() {
   // attach motors to their pins
   rudder.attach(RUDDER_PIN);
   fan.attach(FAN_PIN, 1000, 2000);
+  fan_reverse.attach(FAN_REVERSE_PIN, 1000, 2000);
 
   // set tank LED color on the PS4 controller
   //PS4.setLed(Green);
@@ -225,22 +226,64 @@ void loop() {
     }
 
     // FAN_MODE: check the right joystick setting (make sure it's being set)
-    if ((rightjoystick_reading < Lower_thres || rightjoystick_reading > Upper_thres) && !tank_mode) {
+    if (rightjoystick_reading > Upper_thres && !tank_mode) {
 
-      // map the fan values from 0 to 180
-      fan_val = 180 - map(rightjoystick_reading, 0, 100, 0, 180);
+      // if the fan was going forward and we're commanding to reverse, we need to change direction state
+      if(fan_forward) {
 
-      // check to make sure fan is non-negative
-      if (fan_val < 0) {
+         // stop the fan
+         fan.write(0);
 
-        fan_val = 0;
+         // send command to reverse the direction of the ESC
+         fan_reverse.write(180);
 
+         // reverse fan direction state boolean
+         fan_forward = !fan_forward;
+        
       }
+ 
+      // map the fan values from 0 to 180 (in the lower stick area)
+      fan_val = map(rightjoystick_reading - Upper_thres, 0, 255 - Upper_thres, 0, 180);
 
       // write speed to fan
       fan.write(fan_val);
-      Serial.print("Right fan power: ");
+      Serial.print("Fan power (reverse): ");
       Serial.println(fan_val);
+    }
+    else if(rightjoystick_reading < Lower_thres && !tank_mode) {
+
+      // if the fan was going reverse and we're commanding to forward, we need to change direction state
+      if(!fan_forward) {
+
+         // stop the fan
+         fan.write(0);
+
+         // send command to reverse the direction of the ESC
+         fan_reverse.write(0);
+
+         // reverse fan direction state boolean
+         fan_forward = !fan_forward;
+        
+      }
+
+      // map the magnitude of the fan (in the upper region of stick)
+      fan_val = map(Lower_thres - rightjoystick_reading, 0, Lower_thres, 0, 180);
+
+      // write this value to the fan
+      fan.write(fan_val);
+      
+      Serial.print("Fan power (forward): ");
+      Serial.println(fan_val);
+        
+    }
+    // if we're between ranges, stop the ESC motor
+    else if (!tank_mode) {
+
+      // stop the fan
+      fan.write(0);
+
+      Serial.print("Stopping fan");
+      
     }
 
     // FAN_MODE: check the right joystick setting (make sure it's being set), for rudder
