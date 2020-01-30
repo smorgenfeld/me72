@@ -1,31 +1,35 @@
-/*
-  Example sketch for the PS4 Bluetooth library - developed by Kristian Lauszus
-  For more information visit my blog: http://blog.tkjelectronics.dk/ or
-  send me an e-mail:  kristianl@tkjelectronics.com
-*/
+  /*
+    Example sketch for the PS4 Bluetooth library - developed by Kristian Lauszus
+    For more information visit my blog: http://blog.tkjelectronics.dk/ or
+    send me an e-mail:  kristianl@tkjelectronics.com
+  */
+  
+  // wireless libraries
+  #include <PS4BT.h>
+  #include <Usb.h>
+  #include <usbhub.h>
+  
+  // servo motor library
+  #include <Servo.h>
+  
+  // roboclaw libraries
+  #include <RoboClaw.h>
+  
+  // define actuator pins
+  #define RUDDER_PIN 3
+  #define FAN_PIN 5
+  #define FAN_REVERSE_PIN 9
+  #define GATE_PIN 10
+  #define GATE_POS_F 180
 
-// wireless libraries
-#include <PS4BT.h>
-#include <Usb.h>
-#include <usbhub.h>
-
-// servo motor library
-#include <Servo.h>
-
-// roboclaw libraries
-#include <RoboClaw.h>
-
-// define actuator pins
-#define RUDDER_PIN 3
-#define FAN_PIN 5
-#define FAN_REVERSE_PIN 9
-
-// define the rudder min, max, and center position (on 0 to 180 scale)
-#define RUDDER_MIN 0
-#define RUDDER_MAX 100
-#define RUDDER_CENTER 50
-
-// define the ZERO, MAX Forward, and MAX Backward speed for RS550
+  Servo gate; 
+  
+  // define the rudder min, max, and center position (on 0 to 180 scale)
+  #define RUDDER_MIN 0
+  #define RUDDER_MAX 100
+  #define RUDDER_CENTER 50
+  
+  // define the ZERO, MAX Forward, and MAX Backward speed for RS550
 #define TANK_MAX_F 127
 #define TANK_MAX_B 0
 #define TANK_ZERO 64
@@ -116,6 +120,9 @@ void setup() {
   rudder.attach(RUDDER_PIN);
   fan.attach(FAN_PIN, 1000, 2000);
   fan_reverse.attach(FAN_REVERSE_PIN, 1000, 2000);
+  gate.attach(GATE_PIN);
+
+  pinMode(GATE_PIN, INPUT);
 
   // initially start the fan in the forward direction
   fan_reverse.write(0);
@@ -190,6 +197,28 @@ void loop() {
       // adjust the robot's state
       tank_mode = !tank_mode;
     }
+
+
+if (PS4.getButtonClick(SQUARE)) {
+      Serial.println(F("\r\\nSquare"));
+      pinMode(GATE_PIN, OUTPUT);
+
+
+      // set the gate movement
+      gate.write(GATE_POS_F);
+      
+
+    }
+
+
+
+
+
+
+
+
+
+    
 
     // TANK_MODE: check the right joystick setting (make sure it's being set)
     if ((leftjoystick_reading < Lower_thres || leftjoystick_reading > Upper_thres) && tank_mode) {
