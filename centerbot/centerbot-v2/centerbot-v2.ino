@@ -117,6 +117,9 @@ void setup() {
   fan.attach(FAN_PIN, 1000, 2000);
   fan_reverse.attach(FAN_REVERSE_PIN, 1000, 2000);
 
+  // initially start the fan in the forward direction
+  fan_reverse.write(0);
+
   // set tank LED color on the PS4 controller
   //PS4.setLed(Green);
 
@@ -305,6 +308,11 @@ void loop() {
     }
 
   }
+//  Serial.print("Fan speed: ");
+//  Serial.print(fan.read());
+//
+//  Serial.print("    Fan direction: ");
+//  Serial.println(fan_reverse.read());
 
 }
 
