@@ -18,7 +18,7 @@
 //Shooter Definitions
 Servo belt;
 
-#define BELT_PIN 2 
+#define BELT_PIN 50 
 #define BELT_SPEED 180 //Check what this speed it (0 max on direction, 180 max oter direction)
 #define BELT_STOP 85 
 #define WHEEL_SPEED 16
@@ -27,16 +27,16 @@ Servo belt;
 //Scooper Definitions
 Servo scooper;
 
-#define SCOOP_PIN 51
+#define SCOOP_PIN 7
 #define SCOOP_UP 0
-#define SCOOP_DOWN 180
+#define SCOOP_DOWN 70
 
 bool scoop_up;
 
 //Grabber Definitions
 Servo grabber;
 
-#define GRAB_PIN 50
+#define GRAB_PIN 31
 #define GRAB_DOWN 0
 #define GRAB_UP 135
 
@@ -53,9 +53,9 @@ void ball_setup(void)
   belt.detach();
 
   scooper.attach(SCOOP_PIN);
-  scooper.write(SCOOP_UP);
+  scooper.write(SCOOP_DOWN);
   scooper.detach();
-  scoop_up = true;
+  scoop_up = false;
 
   grabber.attach(GRAB_PIN);
   grabber.write(GRAB_UP);
@@ -108,14 +108,16 @@ void scoop_ball (void){
   {
     scooper.attach(SCOOP_PIN);
     scooper.write(SCOOP_UP);
-    scooper.detach();
+    //scooper.detach();
+    Serial.println("Scooper Up");
   }
 
   else
   {
     scooper.attach(SCOOP_PIN);
     scooper.write(SCOOP_DOWN);
-    scooper.detach();
+    Serial.println("Scooper Down");
+    //scooper.detach();
   }
 
   scoop_up = !scoop_up;
@@ -128,16 +130,18 @@ void scoop_ball (void){
 void grab_tower (void){
   if(!grabber_on)
   {
-    scooper.attach(GRAB_PIN);
-    scooper.write(GRAB_DOWN);
-    scooper.detach();
+    grabber.attach(GRAB_PIN);
+    grabber.write(GRAB_DOWN);
+    Serial.println(" Grabber Down ");
+//    grabber.detach();
   }
 
   else
   {
-    scooper.attach(GRAB_PIN);
-    scooper.write(GRAB_UP);
-    scooper.detach();
+    grabber.attach(GRAB_PIN);
+    grabber.write(GRAB_UP);
+    Serial.println(" Grabber Up ");
+//    grabber.detach();
   }
 
   grabber_on = !grabber_on;
