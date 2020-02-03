@@ -19,10 +19,10 @@
   #define RUDDER_PIN 3
   #define FAN_PIN 5
   #define FAN_REVERSE_PIN 9
-  #define GATE_PIN 10
-  #define GATE_POS_F 180
+//  #define GATE_PIN 11
+//  #define GATE_POS_F 180
 
-  Servo gate; 
+//  Servo gate; 
   
   // define the rudder min, max, and center position (on 0 to 180 scale)
   #define RUDDER_MIN 0
@@ -77,12 +77,12 @@ BTD Btd(&Usb); // You have to create the Bluetooth Dongle instance like so
 
 //*
 //* DO NOT UNCOMMENT THE NEXT LINE, WE NO LONGER WANT TO PAIR
-PS4BT PS4(&Btd, PAIR);
+//PS4BT PS4(&Btd, PAIR);
 //*
 //*
 
 // After that you can simply create the instance like so and then press the PS button on the device
-//PS4BT PS4(&Btd);
+PS4BT PS4(&Btd);
 
 
 // values from the remote that we want to capture/store
@@ -120,9 +120,9 @@ void setup() {
   rudder.attach(RUDDER_PIN);
   fan.attach(FAN_PIN, 1000, 2000);
   fan_reverse.attach(FAN_REVERSE_PIN, 1000, 2000);
-  gate.attach(GATE_PIN);
+//  gate.attach(GATE_PIN);
 
-  pinMode(GATE_PIN, INPUT);
+//  pinMode(GATE_PIN, INPUT);
 
   // initially start the fan in the forward direction
   fan_reverse.write(0);
@@ -198,17 +198,17 @@ void loop() {
       tank_mode = !tank_mode;
     }
 
-
-if (PS4.getButtonClick(SQUARE)) {
-      Serial.println(F("\r\\nSquare"));
-      pinMode(GATE_PIN, OUTPUT);
-
-
-      // set the gate movement
-      gate.write(GATE_POS_F);
-      
-
-    }
+//
+//if (PS4.getButtonClick(SQUARE)) {
+//      Serial.println(F("\r\\nSquare"));
+//      pinMode(GATE_PIN, OUTPUT);
+//
+//
+//      // set the gate movement
+//      gate.write(GATE_POS_F);
+//      
+//
+//    }
 
 
 
