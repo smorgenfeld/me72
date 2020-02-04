@@ -19,20 +19,16 @@
   #define RUDDER_PIN 3
   #define FAN_PIN 5
   #define FAN_REVERSE_PIN 9
-//  #define GATE_PIN 11
-//  #define GATE_POS_F 180
-
-//  Servo gate; 
   
   // define the rudder min, max, and center position (on 0 to 180 scale)
-  #define RUDDER_MIN 0
-  #define RUDDER_MAX 100
-  #define RUDDER_CENTER 50
+  #define RUDDER_MIN 30
+  #define RUDDER_MAX 150
+  #define RUDDER_CENTER 85
   
   // define the ZERO, MAX Forward, and MAX Backward speed for RS550
-#define TANK_MAX_F 127
-#define TANK_MAX_B 0
-#define TANK_ZERO 64
+  #define TANK_MAX_F 127
+  #define TANK_MAX_B 0
+  #define TANK_ZERO 64
 
 // servo objects for our motors
 Servo rudder;
@@ -42,9 +38,17 @@ Servo fan_reverse;
 // tank mode automatically activated
 boolean tank_mode = false;
 
-// Roboclaw serial communication
-SoftwareSerial serial(7, 6);
-RoboClaw roboclaw(&serial, 10000);
+// Roboclaw serial communication using software serial
+//SoftwareSerial serial(7, 6);
+//RoboClaw roboclaw(&serial, 10000);
+
+// Trying to use Serial port to avoid softwareserial
+//
+//
+RoboClaw roboclaw(&Serial,10000);
+//
+//
+//
 
 #define address 0x80
 
@@ -56,7 +60,6 @@ int right_power;
 int leftjoystick_reading;
 int rightjoystick_reading;
 int ljX_reading;
-
 
 // boolean for when the fan is moving forward
 bool fan_forward = true;
@@ -71,10 +74,6 @@ USB Usb;
 //USBHub Hub1(&Usb); // Some dongles have a hub inside
 BTD Btd(&Usb); // You have to create the Bluetooth Dongle instance like so
 
-/* You can create the instance of the PS4BT class in two ways */
-// This will start an inquiry and then pair with the PS4 controller - you only have to do this once
-// You will need to hold down the PS and Share button at the same time, the PS4 controller will then start to blink rapidly indicating that it is in pairing mode
-
 //*
 //* DO NOT UNCOMMENT THE NEXT LINE, WE NO LONGER WANT TO PAIR
 //PS4BT PS4(&Btd, PAIR);
@@ -84,7 +83,6 @@ BTD Btd(&Usb); // You have to create the Bluetooth Dongle instance like so
 // After that you can simply create the instance like so and then press the PS button on the device
 PS4BT PS4(&Btd);
 
-
 // values from the remote that we want to capture/store
 int L2_val = 0;
 int LY_HAT = 0;
@@ -93,19 +91,18 @@ int LY_HAT = 0;
 int rudder_val = 0;
 int fan_val = 0;
 
-
 void setup() {
 
-  // Serial communication
-  Serial.begin(115200);
+// Serial communication
+//  Serial.begin(115200);
 #if !defined(__MIPSEL__)
-  while (!Serial); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
+//  while (!Serial); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
 #endif
   if (Usb.Init() == -1) {
-    Serial.print(F("\r\nOSC did not start"));
+//    Serial.print(F("\r\nOSC did not start"));
     while (1); // Halt
   }
-  Serial.print(F("\r\nPS4 Bluetooth Library Started"));
+//  Serial.print(F("\r\nPS4 Bluetooth Library Started"));
 
   //Serial for RoboClaw
   roboclaw.begin(38400);
@@ -164,11 +161,9 @@ void loop() {
 
       if (tank_mode) {
 
-        rudder.attach(RUDDER_PIN);
-        pinMode(FAN_PIN, OUTPUT);
-        //fan.attach(FAN_PIN);
-
-        //pinMode(RUDDER_PIN, OUTPUT);
+        // if you go back to using software serial, pls remove these lines
+        //rudder.attach(RUDDER_PIN);
+        //pinMode(FAN_PIN, OUTPUT);
 
         // if we're leaving tank mode, adjust the tank motors to no speed
         roboclaw.ForwardBackwardM1(address, TANK_ZERO);
@@ -188,37 +183,15 @@ void loop() {
         rudder.write(RUDDER_CENTER);
         fan.write(0);
 
-        pinMode(FAN_PIN, INPUT);
-        rudder.detach();
-        //fan.detach();
+        // if you go back to using software serial, pls remove these lines
+        //pinMode(FAN_PIN, INPUT);
+        //rudder.detach();
 
       }
 
       // adjust the robot's state
       tank_mode = !tank_mode;
-    }
-
-//
-//if (PS4.getButtonClick(SQUARE)) {
-//      Serial.println(F("\r\\nSquare"));
-//      pinMode(GATE_PIN, OUTPUT);
-//
-//
-//      // set the gate movement
-//      gate.write(GATE_POS_F);
-//      
-//
-//    }
-
-
-
-
-
-
-
-
-
-    
+    }    
 
     // TANK_MODE: check the right joystick setting (make sure it's being set)
     if ((leftjoystick_reading < Lower_thres || leftjoystick_reading > Upper_thres) && tank_mode) {
@@ -330,9 +303,14 @@ void loop() {
       // map the rudder values from min to max values
       rudder_val = map(ljX_reading, 0, 255, RUDDER_MIN, RUDDER_MAX);
 
-      rudder.write(RUDDER_MAX - rudder_val);
+      // get the offset of the rudder command from the servo center command
+      int offset_val = rudder_val - RUDDER_CENTER;
+
+      // command the rudder, with the offset in the other direction 
+      rudder.write(RUDDER_CENTER - offset_val);
       Serial.print("Rudder pos: ");
       Serial.println(rudder_val);
+      
     }
 
     // if it's not getting the signal, set rudder to center
@@ -343,12 +321,7 @@ void loop() {
     }
 
   }
-//  Serial.print("Fan speed: ");
-//  Serial.print(fan.read());
-//
-//  Serial.print("    Fan direction: ");
-//  Serial.println(fan_reverse.read());
-
+  
 }
 
 
@@ -359,8 +332,6 @@ void endgame() {
     
     Serial.println("We're in the Endgame now");   
     
-    
-  }  
-  
+  } 
   
 }
