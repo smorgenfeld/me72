@@ -16,9 +16,9 @@
   #include <RoboClaw.h>
   
   // define actuator pins
-  #define RUDDER_PIN 3
   #define FAN_PIN 5
-  #define FAN_REVERSE_PIN 9
+  #define FAN_REVERSE_PIN 6
+  #define RUDDER_PIN 7
   
   // define the rudder min, max, and center position (on 0 to 180 scale)
   #define RUDDER_MIN 30
@@ -71,7 +71,6 @@ bool fan_forward = true;
 #include <SPI.h>
 
 USB Usb;
-//USBHub Hub1(&Usb); // Some dongles have a hub inside
 BTD Btd(&Usb); // You have to create the Bluetooth Dongle instance like so
 
 //*
@@ -107,7 +106,6 @@ void setup() {
   //Serial for RoboClaw
   roboclaw.begin(38400);
 
-
   delay(2000);
 
   //Set RoboClaw Limits
@@ -117,29 +115,14 @@ void setup() {
   rudder.attach(RUDDER_PIN);
   fan.attach(FAN_PIN, 1000, 2000);
   fan_reverse.attach(FAN_REVERSE_PIN, 1000, 2000);
-//  gate.attach(GATE_PIN);
-
-//  pinMode(GATE_PIN, INPUT);
-
-  // initially start the fan in the forward direction
-  fan_reverse.write(0);
-
-  // set tank LED color on the PS4 controller
-  //PS4.setLed(Green);
-
+  
 }
 void loop() {
   // idk what this does
   Usb.Task();
 
-  // reset the speed and servo values in case connection issues occur :(
-  //rudder_val = 0;
-  //fan_val = 0;
-
   if (PS4.connected()) {
-
-    //PS4.setRumbleOn(RumbleHigh);
-
+    
     // get the readings from the PS4 controller's left and right knobs
     leftjoystick_reading = PS4.getAnalogHat(LeftHatY);
     rightjoystick_reading = PS4.getAnalogHat(RightHatY);
@@ -157,7 +140,7 @@ void loop() {
     }
     
     if (PS4.getButtonClick(TRIANGLE)) {
-      Serial.println(F("\r\nTriangle"));
+      //Serial.println(F("\r\nTriangle"));
 
       if (tank_mode) {
 
@@ -169,15 +152,13 @@ void loop() {
         roboclaw.ForwardBackwardM1(address, TANK_ZERO);
         roboclaw.ForwardBackwardM2(address, TANK_ZERO);
 
-        // change PS4 LED to green (GREEN = FAN MODE)
+        // change PS4 LED to Blue (BLUE = FAN MODE)
         PS4.setLed(Blue);
 
       }
       else {
-        // change PS4 LED to blue (BLUE = TANK MODE)
+        // change PS4 LED to green (Green = TANK MODE)
         PS4.setLed(Green);
-
-        //pinMode(RUDDER_PIN, INPUT);
 
         // if we're leaving fan mode, center the rudder and turn off fan
         rudder.write(RUDDER_CENTER);
@@ -201,33 +182,36 @@ void loop() {
 
       // set power of left tank motor
       roboclaw.ForwardBackwardM1(address, left_power);
-      Serial.print("Left tank Power: ");
-      Serial.println(left_power);
-      //fan.write(0);
+      //Serial.print("Left tank Power: ");
+      //Serial.println(left_power);
+      
     }
 
     // if it's not getting the signal, set left tank power to zero
     else if (tank_mode) {
+      
       roboclaw.ForwardBackwardM1(address, TANK_ZERO);
-      //fan.write(0);
+      
     }
 
     // TANK_MODE: check the right joystick setting (make sure it's being set)
     if ((rightjoystick_reading < Lower_thres || rightjoystick_reading > Upper_thres) && tank_mode) {
+      
       // get the correct power setting for the left and right motors
       right_power = map(rightjoystick_reading, 0, 255, TANK_MAX_F, TANK_MAX_B); //Maps analog output to ForwardsBackwards levels
       
       // set power of right tank motor
       roboclaw.ForwardBackwardM2(address, right_power);
-      Serial.print("Right tank Power: ");
-      Serial.println(right_power);
-      //fan.write(0);
+      //Serial.print("Right tank Power: ");
+      //Serial.println(right_power);
+      
     }
 
     // if it's not getting the signal, set right tank power to zero
     else if (tank_mode) {
+      
       roboclaw.ForwardBackwardM2(address, TANK_ZERO);
-      //fan.write(0);
+
     }
 
     // FAN_MODE: check the right joystick setting (make sure it's being set)
@@ -246,17 +230,17 @@ void loop() {
 //         fan_forward = !fan_forward;
 //        
 //      }
-      fan_reverse.write(180);
+      fan_reverse.write(0);
 
-      Serial.print(fan_reverse.read());
+      //Serial.print(fan_reverse.read());
  
       // map the fan values from 0 to 180 (in the lower stick area)
       fan_val = map(rightjoystick_reading - Upper_thres, 0, 255 - Upper_thres, 0, 180);
 
       // write speed to fan
       fan.write(fan_val);
-      Serial.print("Fan power (reverse): ");
-      Serial.println(fan_val);
+      //Serial.print("Fan power (reverse): ");
+      //Serial.println(fan_val);
     }
     else if(rightjoystick_reading < Lower_thres && !tank_mode) {
 
@@ -274,26 +258,27 @@ void loop() {
 //        
 //      }
 
-      fan_reverse.write(0);
+      fan_reverse.write(180);
 
-      Serial.print(fan_reverse.read());
+      //Serial.print(fan_reverse.read());
       // map the magnitude of the fan (in the upper region of stick)
       fan_val = map(Lower_thres - rightjoystick_reading, 0, Lower_thres, 0, 180);
 
       // write this value to the fan
       fan.write(fan_val);
       
-      Serial.print("Fan power (forward): ");
-      Serial.println(fan_val);
+      //Serial.print("Fan power (forward): ");
+      //Serial.println(fan_val);
         
     }
+    
     // if we're between ranges, stop the ESC motor
     else if (!tank_mode) {
 
       // stop the fan
       fan.write(0);  
 
-      Serial.print("Stopping fan"); 
+      //Serial.print("Stopping fan"); 
       
     }
 
@@ -308,16 +293,16 @@ void loop() {
 
       // command the rudder, with the offset in the other direction 
       rudder.write(RUDDER_CENTER - offset_val);
-      Serial.print("Rudder pos: ");
-      Serial.println(rudder_val);
+      //Serial.print("Rudder pos: ");
+      //Serial.println(rudder_val);
       
     }
 
     // if it's not getting the signal, set rudder to center
     else if(!tank_mode){
       rudder.write(RUDDER_CENTER);
-      Serial.print("Rudder pos: ");
-      Serial.println(RUDDER_CENTER);
+      //Serial.print("Rudder pos: ");
+      //Serial.println(RUDDER_CENTER);
     }
 
   }
@@ -330,7 +315,7 @@ void endgame() {
   // stay in this for some damn reason...safety? what?
   while(true) {
     
-    Serial.println("We're in the Endgame now");   
+    //Serial.println("We're in the Endgame now");   
     
   } 
   
