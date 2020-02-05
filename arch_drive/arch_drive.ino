@@ -5,8 +5,8 @@
 #include <Servo.h>
 
 
-SoftwareSerial serial(28,29); 
-RoboClaw roboclaw(&serial,10000);
+//SoftwareSerial serial(28,29); 
+RoboClaw roboclaw(&Serial1,10000);
 
 #define address 0x80
 
@@ -51,7 +51,7 @@ void loop(){
 
     if (PS4.getButtonClick(CIRCLE))
     {
-      //scoop_ball();
+      scoop_ball();
       
     }
 
@@ -59,6 +59,8 @@ void loop(){
     {
       grab_tower();
     }
+
+    servo_dpad();
   }
 }
 

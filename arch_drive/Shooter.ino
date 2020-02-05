@@ -31,6 +31,8 @@ Servo scooper;
 #define SCOOP_UP 0
 #define SCOOP_DOWN 70
 
+int scoop_pos = 90;
+
 bool scoop_up;
 
 //Grabber Definitions
@@ -148,3 +150,34 @@ void grab_tower (void){
 
   grabber_on = !grabber_on;
 }
+
+//-------------------------------------
+//-------------TEST SCRIPTS------------
+//-------------------------------------
+
+void servo_r2(void)
+{
+  int r2_val = PS4.getAnalogButton(R2);
+  int serv_pos = map(r2_val, 0, 180, 0, 255);
+  scooper.attach(SCOOP_PIN);
+  scooper.write(serv_pos);
+  PS4.setLedFlash(5, 5);
+}
+
+void servo_dpad()
+{
+  int oldpos = scoop_pos;
+  if(PS4.getButtonClick(UP))
+  {
+    scoop_pos += 10;
+  }
+
+  else if (PS4.getButtonClick(DOWN))
+  {
+    scoop_pos -= 10;
+  }
+  
+  scooper.attach(SCOOP_PIN);
+  scooper.write(scoop_pos);
+}
+
