@@ -11,14 +11,14 @@
 //Flywheel Motor Pins
 #define E1 3 //M1 Speed Control
 #define E2 5 //M2 Speed Control
-#define M1 23 //M1 Direction Control
-#define M2 22 //M2 Direction Control
+#define M1 22 //M1 Direction Control
+#define M2 23 //M2 Direction Control
 
 
 //Shooter Definitions
 Servo belt;
 
-#define BELT_PIN 50 
+#define BELT_PIN 2 
 #define BELT_SPEED 180 //Check what this speed it (0 max on direction, 180 max oter direction)
 #define BELT_STOP 85 
 #define WHEEL_SPEED 16
@@ -92,9 +92,9 @@ void shoot_ball ()             //Turn Right: Shooter Direction Forward
   belt.write(BELT_SPEED);
   
   analogWrite (E1,WHEEL_SPEED);
-  digitalWrite(M1,LOW);    
+  digitalWrite(M2,HIGH);    
   analogWrite (E2,WHEEL_SPEED);    
-  digitalWrite(M2,HIGH);
+  digitalWrite(M1,LOW);
 
   //belt.detach();
 }
@@ -110,6 +110,7 @@ void scoop_ball (void){
     scooper.write(SCOOP_UP);
     //scooper.detach();
     Serial.println("Scooper Up");
+    PS4.setLedFlash(10,10);
   }
 
   else
@@ -118,6 +119,7 @@ void scoop_ball (void){
     scooper.write(SCOOP_DOWN);
     Serial.println("Scooper Down");
     //scooper.detach();
+    PS4.setLedFlash(0, 0);
   }
 
   scoop_up = !scoop_up;

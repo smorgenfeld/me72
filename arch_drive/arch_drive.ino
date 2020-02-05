@@ -51,7 +51,8 @@ void loop(){
 
     if (PS4.getButtonClick(CIRCLE))
     {
-      scoop_ball();
+      //scoop_ball();
+      
     }
 
     if (PS4.getButtonClick(SQUARE))
