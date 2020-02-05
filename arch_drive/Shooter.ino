@@ -179,5 +179,11 @@ void servo_dpad()
   
   scooper.attach(SCOOP_PIN);
   scooper.write(scoop_pos);
+  
+//  if (scoop_pos != oldpos)
+//  {
+//    Serial.print("Current position: ");
+//    Serial.println(scoop_pos);
+//  }
 }
 
