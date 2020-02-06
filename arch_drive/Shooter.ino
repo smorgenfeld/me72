@@ -18,7 +18,7 @@
 //Shooter Definitions
 Servo belt;
 
-#define BELT_PIN 2 
+#define BELT_PIN 35
 #define BELT_SPEED 180 //Check what this speed it (0 max on direction, 180 max oter direction)
 #define BELT_STOP 85 
 #define WHEEL_SPEED 16
@@ -38,7 +38,7 @@ bool scoop_up;
 //Grabber Definitions
 Servo grabber;
 
-#define GRAB_PIN 31
+#define GRAB_PIN 2
 #define GRAB_DOWN 0
 #define GRAB_UP 135
 
@@ -177,13 +177,8 @@ void servo_dpad()
     scoop_pos -= 10;
   }
   
-  scooper.attach(SCOOP_PIN);
   scooper.write(scoop_pos);
   
-//  if (scoop_pos != oldpos)
-//  {
-//    Serial.print("Current position: ");
-//    Serial.println(scoop_pos);
-//  }
+
 }
 
