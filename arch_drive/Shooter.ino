@@ -20,7 +20,7 @@ Servo belt;
 
 #define BELT_PIN 35
 #define BELT_SPEED 180 //Check what this speed it (0 max on direction, 180 max oter direction)
-#define BELT_STOP 85 
+#define BELT_STOP 95 
 #define WHEEL_SPEED 16
 
 
@@ -28,19 +28,21 @@ Servo belt;
 Servo scooper;
 
 #define SCOOP_PIN 7
-#define SCOOP_UP 0
-#define SCOOP_DOWN 70
+#define SCOOP_UP 100
+#define SCOOP_DOWN 170
+#define SCOOP_ANGLE 10
 
-int scoop_pos = 90;
-
-bool scoop_up;
+int scooper_pos = 90;
+int grabber_pos = 90;
+bool detached;
 
 //Grabber Definitions
 Servo grabber;
 
 #define GRAB_PIN 2
-#define GRAB_DOWN 0
-#define GRAB_UP 135
+#define GRAB_DOWN 100
+#define GRAB_UP 170
+#define GRAB_ANGLE -5
 
 bool grabber_on;
 
@@ -50,18 +52,14 @@ bool grabber_on;
 
 void ball_setup(void)
 {
-  belt.attach(BELT_PIN);
-  belt.write(BELT_STOP);
-  belt.detach();
-
   scooper.attach(SCOOP_PIN);
   scooper.write(SCOOP_DOWN);
-  scooper.detach();
-  scoop_up = false;
+//  scooper.detach();
+//  scoop_up = false;
 
   grabber.attach(GRAB_PIN);
   grabber.write(GRAB_UP);
-  grabber.detach();
+//  grabber.detach();
   grabber_on = false;
   
   int i;
@@ -94,9 +92,9 @@ void shoot_ball ()             //Turn Right: Shooter Direction Forward
   belt.write(BELT_SPEED);
   
   analogWrite (E1,WHEEL_SPEED);
-  digitalWrite(M2,HIGH);    
+  digitalWrite(M1,HIGH);    
   analogWrite (E2,WHEEL_SPEED);    
-  digitalWrite(M1,LOW);
+  digitalWrite(M2,LOW);
 
   //belt.detach();
 }
@@ -105,27 +103,26 @@ void shoot_ball ()             //Turn Right: Shooter Direction Forward
 //-------------SCOOPER-----------------
 //-------------------------------------
 
-void scoop_ball (void){
+/*void scoop_ball (void){
   if(!scoop_up)
   {
-    scooper.attach(SCOOP_PIN);
+//    scooper.attach(SCOOP_PIN);
     scooper.write(SCOOP_UP);
     //scooper.detach();
-    Serial.println("Scooper Up");
     PS4.setLedFlash(10,10);
   }
 
   else
   {
-    scooper.attach(SCOOP_PIN);
+//    scooper.attach(SCOOP_PIN);
     scooper.write(SCOOP_DOWN);
-    Serial.println("Scooper Down");
+//    Serial.println("Scooper Down");
     //scooper.detach();
     PS4.setLedFlash(0, 0);
   }
 
   scoop_up = !scoop_up;
-}
+}*/
 
 //-------------------------------------
 //-------------GRABBER-----------------
@@ -134,15 +131,15 @@ void scoop_ball (void){
 void grab_tower (void){
   if(!grabber_on)
   {
-    grabber.attach(GRAB_PIN);
+//    grabber.attach(GRAB_PIN);
     grabber.write(GRAB_DOWN);
-    Serial.println(" Grabber Down ");
+//    Serial.println(" Grabber Down ");
 //    grabber.detach();
   }
 
   else
   {
-    grabber.attach(GRAB_PIN);
+//    grabber.attach(GRAB_PIN);
     grabber.write(GRAB_UP);
     Serial.println(" Grabber Up ");
 //    grabber.detach();
@@ -155,30 +152,77 @@ void grab_tower (void){
 //-------------TEST SCRIPTS------------
 //-------------------------------------
 
-void servo_r2(void)
-{
-  int r2_val = PS4.getAnalogButton(R2);
-  int serv_pos = map(r2_val, 0, 180, 0, 255);
-  scooper.attach(SCOOP_PIN);
-  scooper.write(serv_pos);
-  PS4.setLedFlash(5, 5);
-}
 
-void servo_dpad()
+void servocontrol(bool grab_attach)
 {
-  int oldpos = scoop_pos;
-  if(PS4.getButtonClick(UP))
-  {
-    scoop_pos += 10;
+
+  if (grab_attach){
+    grabber.attach(GRAB_PIN);
+    grabber_pos = dpad_pos(grabber_pos, GRAB_DOWN, GRAB_UP, GRAB_ANGLE);
+    grabber.write(grabber_pos);
+    //Serial.println("Grabber Attached");
+    PS4.setLed(Green);
+    detached = false;
   }
 
-  else if (PS4.getButtonClick(DOWN))
-  {
-    scoop_pos -= 10;
+  else{
+    if (!detached){
+      grabber.detach();
+    }
+    scooper_pos = dpad_pos(scooper_pos, SCOOP_DOWN, SCOOP_UP, SCOOP_ANGLE);
+    scooper.write(scooper_pos);
+    //Serial.println("Scooper Control");
+    PS4.setLed(Red);
+  }
+}
+
+int dpad_pos(int pos, int minval, int maxval, int angleval){  
+  int oldpos = pos;
+  
+  if (pos >= 0 && pos <= 180){
+    if(PS4.getButtonClick(UP))
+    {
+      pos += angleval;
+    }
+
+    else if (PS4.getButtonClick(DOWN))
+    {
+      pos -= angleval;
+    }
+
+    else if (PS4.getButtonClick(LEFT)){
+      pos = minval;
+    }
+
+    else if (PS4.getButtonClick(RIGHT)){
+      pos = maxval;
+    }
+  }
+
+  if (pos > 180){
+    pos = 180;
+  }
+
+  else if (pos < 0){
+    pos = 0;
   }
   
-  scooper.write(scoop_pos);
-  
+  if (pos != oldpos)
+  {
+    Serial.print("Current Position: ");
+    Serial.println(pos);
+  }
 
+  if (pos == 0 || pos == 180){
+    PS4.setLedFlash(100, 100);
+  }
+
+  else{
+    PS4.setLedFlash(0, 0);
+  }
+
+  return pos;
 }
+
+
 
