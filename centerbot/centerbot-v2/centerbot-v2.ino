@@ -16,6 +16,8 @@
   #include <RoboClaw.h>
   
   // define actuator pins
+  #define GATE_PIN 3
+  #define SCOOP_PIN 4
   #define FAN_PIN 5
   #define FAN_REVERSE_PIN 6
   #define RUDDER_PIN 7
@@ -30,10 +32,20 @@
   #define TANK_MAX_B 0
   #define TANK_ZERO 64
 
+  // define open and close positions for the gate
+  #define GATE_OPEN 180
+  #define GATE_CLOSE 0
+
+  // define min and max positions for the scooper
+  #define MIN_SCOOP 0
+  #define MAX_SCOOP 180
+
 // servo objects for our motors
 Servo rudder;
 Servo fan;
 Servo fan_reverse;
+Servo gate;
+Servo scoop;
 
 // tank mode automatically activated
 boolean tank_mode = false;
@@ -93,7 +105,7 @@ int fan_val = 0;
 void setup() {
 
 // Serial communication
-//  Serial.begin(115200);
+  Serial.begin(115200);
 #if !defined(__MIPSEL__)
 //  while (!Serial); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
 #endif
@@ -115,6 +127,8 @@ void setup() {
   rudder.attach(RUDDER_PIN);
   fan.attach(FAN_PIN, 1000, 2000);
   fan_reverse.attach(FAN_REVERSE_PIN, 1000, 2000);
+  gate.attach(GATE_PIN);
+  scoop.attach(SCOOP_PIN);
   
 }
 void loop() {
@@ -217,23 +231,8 @@ void loop() {
     // FAN_MODE: check the right joystick setting (make sure it's being set)
     if (rightjoystick_reading > Upper_thres && !tank_mode) {
 
-//      // if the fan was going forward and we're commanding to reverse, we need to change direction state
-//      if(fan_forward) {
-//
-//         // stop the fan
-//         fan.write(0);
-//
-//         // send command to reverse the direction of the ESC
-//         fan_reverse.write(180);
-//
-//         // reverse fan direction state boolean
-//         fan_forward = !fan_forward;
-//        
-//      }
       fan_reverse.write(0);
 
-      //Serial.print(fan_reverse.read());
- 
       // map the fan values from 0 to 180 (in the lower stick area)
       fan_val = map(rightjoystick_reading - Upper_thres, 0, 255 - Upper_thres, 0, 180);
 
@@ -244,20 +243,7 @@ void loop() {
     }
     else if(rightjoystick_reading < Lower_thres && !tank_mode) {
 
-      // if the fan was going reverse and we're commanding to forward, we need to change direction state
-//      if(!fan_forward) {
-//
-//         // stop the fan
-//         fan.write(0);
-//
-//         // send command to reverse the direction of the ESC
-//         fan_reverse.write(0);
-//
-//         // reverse fan direction state boolean
-//         fan_forward = !fan_forward;
-//        
-//      }
-
+      // reverse the damn fan
       fan_reverse.write(180);
 
       //Serial.print(fan_reverse.read());
@@ -303,6 +289,35 @@ void loop() {
       rudder.write(RUDDER_CENTER);
       //Serial.print("Rudder pos: ");
       //Serial.println(RUDDER_CENTER);
+    }
+
+    // set the gate position to close
+    if (PS4.getButtonClick(L1)) {
+
+      gate.write(GATE_CLOSE);
+      //Serial.println(0);
+      
+    }
+
+    // set the gate position to open
+    if (PS4.getButtonClick(R1)) {
+
+      gate.write(GATE_OPEN);
+      //Serial.println(1);
+      
+    }
+
+    // lift the scooper accordingly
+    if (PS4.getAnalogButton(R2)) { 
+
+      // get the scoop command value by mapping R2 input to min and max ranges specified from testing
+      int scoop_val = map(PS4.getAnalogButton(R2), 0, 255, MIN_SCOOP, MAX_SCOOP);
+
+      // write this value to the scooper
+      scoop.write(scoop_val);
+
+      Serial.println(scoop_val);
+      
     }
 
   }
