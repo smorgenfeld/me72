@@ -147,7 +147,7 @@ void loop() {
     if (PS4.getButtonClick(CIRCLE)) { 
 
       // we're Thanos' color now
-      PS4.setLed(Purple);
+      PS4.setLed(255,0,255);
       
       // THANOS SNAPS...
       endgame();
