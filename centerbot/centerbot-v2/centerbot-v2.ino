@@ -38,7 +38,8 @@
 
   // define min and max positions for the scooper
   #define MIN_SCOOP 0
-  #define MAX_SCOOP 180
+  #define MAX_SCOOP 130
+  #define MAX_MAX_SCOOP 160
 
 // servo objects for our motors
 Servo rudder;
@@ -307,18 +308,54 @@ void loop() {
       
     }
 
-    // lift the scooper accordingly
-    if (PS4.getAnalogButton(R2)) { 
+    
+    if(PS4.getAnalogButton(L2) || PS4.getAnalogButton(R2)) {
 
-      // get the scoop command value by mapping R2 input to min and max ranges specified from testing
-      int scoop_val = map(PS4.getAnalogButton(R2), 0, 255, MIN_SCOOP, MAX_SCOOP);
-
-      // write this value to the scooper
-      scoop.write(scoop_val);
-
-      Serial.println(scoop_val);
+      // start at max position (equilibrium position)
+      int scoop_write = MAX_SCOOP;
       
+      // lift the scooper accordingly
+      if (PS4.getAnalogButton(L2)) { 
+  
+        // get the additional offset contributing from the L2 button (for the extra push)
+        int scoop_val1 = map(PS4.getAnalogButton(L2), 0, 255, 0, MAX_MAX_SCOOP - MAX_SCOOP);
+  
+        // write this value to the scooper
+  //      scoop.write(scoop_val);
+  
+        // add the contribution to the scoop value
+        scoop_write += scoop_val1;
+  
+  //      Serial.println(scoop_val);
+  
+  
+        
+      }
+  
+      // lift the scooper accordingly
+      if (PS4.getAnalogButton(R2)) { 
+  
+        // get the scoop command value by mapping R2 input to min and max ranges specified from testing
+//        int scoop_val = map(255 - PS4.getAnalogButton(R2), 0, 255, MIN_SCOOP, MAX_SCOOP);
+        int scoop_val2 = map(PS4.getAnalogButton(R2), 0, 255, MIN_SCOOP, MAX_SCOOP);
+  
+        // write this value to the scooper
+  //      scoop.write(scoop_val);
+  
+  //      Serial.println(scoop_val);
+  
+        // add the contribution from the R2
+//        scoop_write += scoop_val;
+
+          // offset vals
+          scoop_write = scoop_write - scoop_val2;
+        
+      }
+
+      scoop.write(scoop_write);
     }
+    // write the combined value to the scooper
+//    scoop.write(scoop_write);
 
   }
   
