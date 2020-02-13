@@ -17,7 +17,7 @@ void PS4_setup(void)
     Serial.print(F("\r\nOSC did not start"));
     while (1); // Halt
   }
-  Serial.print(F("\r\nPS4 Bluetooth Library Started"));
+  Serial.println(F("\r\nPS4 Bluetooth Library Started"));
 }
 
 

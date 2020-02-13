@@ -29,6 +29,10 @@ PS4BT PS4(&Btd);
 bool printAngle, printTouch;
 uint8_t oldL2Value, oldR2Value;
 
+unsigned long looptime;
+unsigned long newtime;
+unsigned long oldtime = 0;
+
 void setup() {
   Serial.begin(115200);
 #if !defined(__MIPSEL__)
@@ -42,6 +46,15 @@ void setup() {
 }
 void loop() {
   Usb.Task();
+
+  newtime = millis();
+  looptime = newtime - oldtime;
+  oldtime = newtime;
+
+  Serial.print("Loop time: ");
+  Serial.println(looptime);
+
+  
 
   if (PS4.connected()) {
     if (PS4.getAnalogHat(LeftHatX) > 137 || PS4.getAnalogHat(LeftHatX) < 117 || PS4.getAnalogHat(LeftHatY) > 137 || PS4.getAnalogHat(LeftHatY) < 117 || PS4.getAnalogHat(RightHatX) > 137 || PS4.getAnalogHat(RightHatX) < 117 || PS4.getAnalogHat(RightHatY) > 137 || PS4.getAnalogHat(RightHatY) < 117) {
