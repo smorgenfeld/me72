@@ -16,7 +16,7 @@
   #include <RoboClaw.h>
   
   // define actuator pins
-  #define GATE_PIN 3
+  #define GATE_PIN 2
   #define SCOOP_PIN 4
   #define FAN_PIN 5
   #define FAN_REVERSE_PIN 6
@@ -33,8 +33,8 @@
   #define TANK_ZERO 64
 
   // define open and close positions for the gate
-  #define GATE_OPEN 180
-  #define GATE_CLOSE 0
+  #define GATE_OPEN 90
+  #define GATE_CLOSE 180
 
   // define min and max positions for the scooper
   #define MIN_SCOOP 0
@@ -292,17 +292,17 @@ void loop() {
     }
 
     // set the gate position to close
-    if (PS4.getButtonClick(L1)) {
+    if (PS4.getButtonClick(R1)) {
 
-      gate.write(GATE_CLOSE);
+      gate.write(GATE_OPEN);
       //Serial.println(0);
       
     }
 
     // set the gate position to open
-    if (PS4.getButtonClick(R1)) {
+    if (PS4.getButtonClick(L1)) {
 
-      gate.write(GATE_OPEN);
+      gate.write(GATE_CLOSE);
       //Serial.println(1);
       
     }
