@@ -1,4 +1,4 @@
-  /*
+    /*
     Example sketch for the PS4 Bluetooth library - developed by Kristian Lauszus
     For more information visit my blog: http://blog.tkjelectronics.dk/ or
     send me an e-mail:  kristianl@tkjelectronics.com
@@ -40,6 +40,10 @@
   #define MIN_SCOOP 0
   #define MAX_SCOOP 130
   #define MAX_MAX_SCOOP 160
+
+  // define the min and max speeds for the fan
+  #define MIN_FAN 0
+  #define MAX_FAN 100
 
 // servo objects for our motors
 Servo rudder;
@@ -155,13 +159,8 @@ void loop() {
     }
     
     if (PS4.getButtonClick(TRIANGLE)) {
-      //Serial.println(F("\r\nTriangle"));
-
+      
       if (tank_mode) {
-
-        // if you go back to using software serial, pls remove these lines
-        //rudder.attach(RUDDER_PIN);
-        //pinMode(FAN_PIN, OUTPUT);
 
         // if we're leaving tank mode, adjust the tank motors to no speed
         roboclaw.ForwardBackwardM1(address, TANK_ZERO);
@@ -172,6 +171,7 @@ void loop() {
 
       }
       else {
+        
         // change PS4 LED to green (Green = TANK MODE)
         PS4.setLed(Green);
 
@@ -179,14 +179,11 @@ void loop() {
         rudder.write(RUDDER_CENTER);
         fan.write(0);
 
-        // if you go back to using software serial, pls remove these lines
-        //pinMode(FAN_PIN, INPUT);
-        //rudder.detach();
-
       }
 
       // adjust the robot's state
       tank_mode = !tank_mode;
+      
     }    
 
     // TANK_MODE: check the right joystick setting (make sure it's being set)
@@ -197,8 +194,6 @@ void loop() {
 
       // set power of left tank motor
       roboclaw.ForwardBackwardM1(address, left_power);
-      //Serial.print("Left tank Power: ");
-      //Serial.println(left_power);
       
     }
 
@@ -217,8 +212,6 @@ void loop() {
       
       // set power of right tank motor
       roboclaw.ForwardBackwardM2(address, right_power);
-      //Serial.print("Right tank Power: ");
-      //Serial.println(right_power);
       
     }
 
@@ -235,27 +228,22 @@ void loop() {
       fan_reverse.write(0);
 
       // map the fan values from 0 to 180 (in the lower stick area)
-      fan_val = map(rightjoystick_reading - Upper_thres, 0, 255 - Upper_thres, 0, 180);
+      fan_val = map(rightjoystick_reading - Upper_thres, 0, 255 - Upper_thres, MIN_FAN, MAX_FAN);
 
       // write speed to fan
       fan.write(fan_val);
-      //Serial.print("Fan power (reverse): ");
-      //Serial.println(fan_val);
+      
     }
     else if(rightjoystick_reading < Lower_thres && !tank_mode) {
 
       // reverse the damn fan
       fan_reverse.write(180);
 
-      //Serial.print(fan_reverse.read());
       // map the magnitude of the fan (in the upper region of stick)
-      fan_val = map(Lower_thres - rightjoystick_reading, 0, Lower_thres, 0, 180);
+      fan_val = map(Lower_thres - rightjoystick_reading, 0, Lower_thres, MIN_FAN, MAX_FAN);
 
       // write this value to the fan
       fan.write(fan_val);
-      
-      //Serial.print("Fan power (forward): ");
-      //Serial.println(fan_val);
         
     }
     
@@ -264,8 +252,6 @@ void loop() {
 
       // stop the fan
       fan.write(0);  
-
-      //Serial.print("Stopping fan"); 
       
     }
 
@@ -280,23 +266,20 @@ void loop() {
 
       // command the rudder, with the offset in the other direction 
       rudder.write(RUDDER_CENTER - offset_val);
-      //Serial.print("Rudder pos: ");
-      //Serial.println(rudder_val);
       
     }
 
     // if it's not getting the signal, set rudder to center
     else if(!tank_mode){
+      
       rudder.write(RUDDER_CENTER);
-      //Serial.print("Rudder pos: ");
-      //Serial.println(RUDDER_CENTER);
+      
     }
 
     // set the gate position to close
     if (PS4.getButtonClick(R1)) {
 
       gate.write(GATE_OPEN);
-      //Serial.println(0);
       
     }
 
@@ -304,10 +287,8 @@ void loop() {
     if (PS4.getButtonClick(L1)) {
 
       gate.write(GATE_CLOSE);
-      //Serial.println(1);
       
     }
-
     
     if(PS4.getAnalogButton(L2) || PS4.getAnalogButton(R2)) {
 
@@ -320,15 +301,8 @@ void loop() {
         // get the additional offset contributing from the L2 button (for the extra push)
         int scoop_val1 = map(PS4.getAnalogButton(L2), 0, 255, 0, MAX_MAX_SCOOP - MAX_SCOOP);
   
-        // write this value to the scooper
-  //      scoop.write(scoop_val);
-  
         // add the contribution to the scoop value
-        scoop_write += scoop_val1;
-  
-  //      Serial.println(scoop_val);
-  
-  
+        scoop_write += scoop_val1;  
         
       }
   
@@ -336,17 +310,8 @@ void loop() {
       if (PS4.getAnalogButton(R2)) { 
   
         // get the scoop command value by mapping R2 input to min and max ranges specified from testing
-//        int scoop_val = map(255 - PS4.getAnalogButton(R2), 0, 255, MIN_SCOOP, MAX_SCOOP);
         int scoop_val2 = map(PS4.getAnalogButton(R2), 0, 255, MIN_SCOOP, MAX_SCOOP);
   
-        // write this value to the scooper
-  //      scoop.write(scoop_val);
-  
-  //      Serial.println(scoop_val);
-  
-        // add the contribution from the R2
-//        scoop_write += scoop_val;
-
           // offset vals
           scoop_write = scoop_write - scoop_val2;
         
@@ -354,8 +319,27 @@ void loop() {
 
       scoop.write(scoop_write);
     }
-    // write the combined value to the scooper
-//    scoop.write(scoop_write);
+    if (PS4.getButtonClick(UP)){
+      //Pressing Up checks the battery's voltage.
+       batt_vol = roboclaw.ReadMainBatteryVoltage(address);
+
+       if (batt_vol > 150){
+        //Voltage is fine, no charge needed. 
+        PS4.setLed(Green);
+       }
+       
+       else if (batt_vol > 130){
+        //Voltage is low but not critically low.
+        PS4.setLed(Yellow);
+        PS4.setLedFlash(100, 100);
+       }
+       
+       else{
+        //Voltage is critically low and the system needs to be shut off.
+        PS4.setLed(Red);
+       }
+       
+   }
 
   }
   
@@ -366,8 +350,17 @@ void endgame() {
   
   // stay in this for some damn reason...safety? what?
   while(true) {
-    
-    //Serial.println("We're in the Endgame now");   
+    // idk what this does
+    Usb.Task();
+    //Serial.println("We're in the Endgame now"); 
+
+      if (PS4.connected()) {
+
+        // set LED to purple
+        PS4.setLed(255,0,255);
+
+      }
+    }
     
   } 
   
