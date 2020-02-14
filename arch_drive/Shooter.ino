@@ -21,16 +21,16 @@ Servo belt;
 #define BELT_PIN 35
 #define BELT_SPEED 180 //Check what this speed it (0 max on direction, 180 max oter direction)
 #define BELT_STOP 95 
-#define WHEEL_SPEED 16
+int WHEEL_SPEED = 17;
 
 
 //Scooper Definitions
 Servo scooper;
 
 #define SCOOP_PIN 7
-#define SCOOP_UP 100
-#define SCOOP_DOWN 170
-#define SCOOP_ANGLE 10
+#define SCOOP_DOWN 60
+#define SCOOP_UP 160
+#define SCOOP_ANGLE 5
 
 int scooper_pos = 90;
 int grabber_pos = 90;
@@ -40,8 +40,8 @@ bool detached;
 Servo grabber;
 
 #define GRAB_PIN 2
-#define GRAB_DOWN 100
-#define GRAB_UP 170
+#define GRAB_DOWN 80
+#define GRAB_UP 160
 #define GRAB_ANGLE -5
 
 bool grabber_on;
@@ -52,16 +52,15 @@ bool grabber_on;
 
 void ball_setup(void)
 {
+  //Writes the scooper in the up position to start.
   scooper.attach(SCOOP_PIN);
-  scooper.write(SCOOP_DOWN);
-//  scooper.detach();
-//  scoop_up = false;
+  scooper.write(SCOOP_UP - 10);
 
+  //Sets the grabber in the UP position to start.
   grabber.attach(GRAB_PIN);
   grabber.write(GRAB_UP);
-//  grabber.detach();
-  grabber_on = false;
-  
+
+  //Sets the motor pins as OUTPUTS.
   int i;
   for(i=2;i<=5;i++)
     pinMode(i, OUTPUT);  
@@ -73,106 +72,75 @@ void ball_setup(void)
 //-------------SHOOTER-----------------
 //-------------------------------------
 
-
-void stop(void)                    //Stop
+//Flywheels
+void shooter_stop(void)                    //Stop
 {
-  belt.attach(BELT_PIN);
-  belt.write(BELT_STOP);
-  belt.detach();
-  
+  //Stops the flywheels
   digitalWrite(E1,0); 
   digitalWrite(M1,LOW);    
   digitalWrite(E2,0);   
   digitalWrite(M2,LOW);    
 }   
 
-void shoot_ball ()             //Turn Right: Shooter Direction Forward
+void shoot_ball ()             
 {
-  belt.attach(BELT_PIN);
-  belt.write(BELT_SPEED);
-  
+  //Turns on the flywheel to the defined WHEEL_SPEED
   analogWrite (E1,WHEEL_SPEED);
   digitalWrite(M1,HIGH);    
   analogWrite (E2,WHEEL_SPEED);    
   digitalWrite(M2,LOW);
 
-  //belt.detach();
+  if (PS4.getButtonClick(R1)){
+    WHEEL_SPEED += 1;
+    Serial.print("Wheel speed: ");
+    Serial.println(WHEEL_SPEED);
+  }
+
+  if (PS4.getButtonClick(L1)){
+    WHEEL_SPEED -= 1;
+    Serial.print("Wheel speed: ");
+    Serial.println(WHEEL_SPEED);
+  }
+}
+
+//Loading belt
+void belt_stop(){
+  //Stops the belt
+  belt.attach(BELT_PIN);
+  belt.write(BELT_STOP);
+  belt.detach();
+}
+
+void belt_run(){
+  //Runs the belt
+  belt.attach(BELT_PIN);
+  belt.write(BELT_SPEED);
 }
 
 //-------------------------------------
-//-------------SCOOPER-----------------
+//--------------SERVOS-----------------
 //-------------------------------------
 
-/*void scoop_ball (void){
-  if(!scoop_up)
-  {
-//    scooper.attach(SCOOP_PIN);
-    scooper.write(SCOOP_UP);
-    //scooper.detach();
-    PS4.setLedFlash(10,10);
-  }
-
-  else
-  {
-//    scooper.attach(SCOOP_PIN);
-    scooper.write(SCOOP_DOWN);
-//    Serial.println("Scooper Down");
-    //scooper.detach();
-    PS4.setLedFlash(0, 0);
-  }
-
-  scoop_up = !scoop_up;
-}*/
-
-//-------------------------------------
-//-------------GRABBER-----------------
-//-------------------------------------
-
-void grab_tower (void){
-  if(!grabber_on)
-  {
-//    grabber.attach(GRAB_PIN);
-    grabber.write(GRAB_DOWN);
-//    Serial.println(" Grabber Down ");
-//    grabber.detach();
-  }
-
-  else
-  {
-//    grabber.attach(GRAB_PIN);
-    grabber.write(GRAB_UP);
-    Serial.println(" Grabber Up ");
-//    grabber.detach();
-  }
-
-  grabber_on = !grabber_on;
-}
-
-//-------------------------------------
-//-------------TEST SCRIPTS------------
-//-------------------------------------
-
-
-void servocontrol(bool grab_attach)
+void servodpad(bool grab_attach)
 {
 
   if (grab_attach){
+    //If the grabber is supposed to be on, the grabber is reattached and controlled by the Dpad
     grabber.attach(GRAB_PIN);
-    grabber_pos = dpad_pos(grabber_pos, GRAB_DOWN, GRAB_UP, GRAB_ANGLE);
+    grabber_pos = dpad_pos(grabber_pos, GRAB_DOWN, GRAB_UP, GRAB_ANGLE); //Sets the position based on the Dpad
     grabber.write(grabber_pos);
-    //Serial.println("Grabber Attached");
-    PS4.setLed(Green);
-    detached = false;
+    //PS4.setLed(Green);
+    detached = false; //Declares that the grabber is in fact detached.
   }
 
   else{
     if (!detached){
+      //If the first time going through the loop, detaches the grabber.
       grabber.detach();
     }
-    scooper_pos = dpad_pos(scooper_pos, SCOOP_DOWN, SCOOP_UP, SCOOP_ANGLE);
+    scooper_pos = dpad_pos(scooper_pos, SCOOP_DOWN, SCOOP_UP, SCOOP_ANGLE); //Sets the position based on the Dpad
     scooper.write(scooper_pos);
-    //Serial.println("Scooper Control");
-    PS4.setLed(Red);
+    //PS4.setLed(Red);
   }
 }
 
@@ -182,47 +150,53 @@ int dpad_pos(int pos, int minval, int maxval, int angleval){
   if (pos >= 0 && pos <= 180){
     if(PS4.getButtonClick(UP))
     {
+      //If pressing up button, raise the servo
       pos += angleval;
     }
 
     else if (PS4.getButtonClick(DOWN))
     {
+      //DOWN button lowers the servo arm
       pos -= angleval;
     }
 
     else if (PS4.getButtonClick(LEFT)){
+      //LEFT sets the servo arm to the lowest position.
       pos = minval;
     }
 
     else if (PS4.getButtonClick(RIGHT)){
+      //RIGHT sets the servo arm to the highest position.
       pos = maxval;
     }
   }
 
   if (pos > 180){
+    //Doesn't allow pos to be above 180
     pos = 180;
   }
 
   else if (pos < 0){
+    //Doesn't allow pos to be below 0
     pos = 0;
   }
   
-  if (pos != oldpos)
-  {
-    Serial.print("Current Position: ");
-    Serial.println(pos);
-  }
-
-  if (pos == 0 || pos == 180){
-    PS4.setLedFlash(100, 100);
-  }
-
-  else{
-    PS4.setLedFlash(0, 0);
-  }
-
   return pos;
 }
+
+
+//ANALOG CONTROLS: TRIGGERS.
+
+int analog_scoop(int buttonread){
+  int pos = map(buttonread, 0, 255, SCOOP_UP, SCOOP_DOWN);
+  scooper.write(pos);
+}
+
+void analog_grabber(int buttonread){
+  int pos = map(buttonread, 0, 255, GRAB_UP, GRAB_DOWN);
+  grabber.write(pos);
+}
+
 
 
 

@@ -21,3 +21,22 @@ void PS4_setup(void)
 }
 
 
+void ps4_operate(){
+  //TODO: Put all PS4 control stuff in here. 
+  if (PS4.getAnalogButton(R2)){
+    //Controls the scooper by the R2 trigger.
+    analog_scoop(PS4.getAnalogButton(R2));
+    //PS4.setLed(PS4.getAnalogButton(R2), 0, 255 - PS4.getAnalogButton(R2));
+  }
+
+  if (PS4.getAnalogButton(L2)){
+    //Controls the scooper by the L2 Trigger. 
+    analog_grabber(PS4.getAnalogButton(L2));
+  }
+}
+
+void safe_mode(){
+  //TODO: safety mode such that if the voltage is too low the system stops running to prevent a LiPo kill.
+  motor_stop();
+}
+

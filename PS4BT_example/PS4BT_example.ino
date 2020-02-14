@@ -112,7 +112,7 @@ void loop() {
         PS4.setLed(Yellow);
       } if (PS4.getButtonClick(LEFT)) {
         Serial.print(F("\r\nLeft"));
-        PS4.setLed(Green);
+        PS4.setLed(255, 0, 255);
       }
 
       if (PS4.getButtonClick(L1))
