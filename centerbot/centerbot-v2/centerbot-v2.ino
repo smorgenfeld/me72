@@ -16,7 +16,7 @@
   #include <RoboClaw.h>
   
   // define actuator pins
-  #define GATE_PIN 3
+  #define GATE_PIN 2
   #define SCOOP_PIN 4
   #define FAN_PIN 5
   #define FAN_REVERSE_PIN 6
@@ -33,12 +33,13 @@
   #define TANK_ZERO 64
 
   // define open and close positions for the gate
-  #define GATE_OPEN 180
-  #define GATE_CLOSE 0
+  #define GATE_OPEN 90
+  #define GATE_CLOSE 180
 
   // define min and max positions for the scooper
   #define MIN_SCOOP 0
-  #define MAX_SCOOP 180
+  #define MAX_SCOOP 130
+  #define MAX_MAX_SCOOP 160
 
 // servo objects for our motors
 Servo rudder;
@@ -146,7 +147,7 @@ void loop() {
     if (PS4.getButtonClick(CIRCLE)) { 
 
       // we're Thanos' color now
-      PS4.setLed(Purple);
+      PS4.setLed(255,0,255);
       
       // THANOS SNAPS...
       endgame();
@@ -292,33 +293,69 @@ void loop() {
     }
 
     // set the gate position to close
-    if (PS4.getButtonClick(L1)) {
+    if (PS4.getButtonClick(R1)) {
 
-      gate.write(GATE_CLOSE);
+      gate.write(GATE_OPEN);
       //Serial.println(0);
       
     }
 
     // set the gate position to open
-    if (PS4.getButtonClick(R1)) {
+    if (PS4.getButtonClick(L1)) {
 
-      gate.write(GATE_OPEN);
+      gate.write(GATE_CLOSE);
       //Serial.println(1);
       
     }
 
-    // lift the scooper accordingly
-    if (PS4.getAnalogButton(R2)) { 
+    
+    if(PS4.getAnalogButton(L2) || PS4.getAnalogButton(R2)) {
 
-      // get the scoop command value by mapping R2 input to min and max ranges specified from testing
-      int scoop_val = map(PS4.getAnalogButton(R2), 0, 255, MIN_SCOOP, MAX_SCOOP);
-
-      // write this value to the scooper
-      scoop.write(scoop_val);
-
-      Serial.println(scoop_val);
+      // start at max position (equilibrium position)
+      int scoop_write = MAX_SCOOP;
       
+      // lift the scooper accordingly
+      if (PS4.getAnalogButton(L2)) { 
+  
+        // get the additional offset contributing from the L2 button (for the extra push)
+        int scoop_val1 = map(PS4.getAnalogButton(L2), 0, 255, 0, MAX_MAX_SCOOP - MAX_SCOOP);
+  
+        // write this value to the scooper
+  //      scoop.write(scoop_val);
+  
+        // add the contribution to the scoop value
+        scoop_write += scoop_val1;
+  
+  //      Serial.println(scoop_val);
+  
+  
+        
+      }
+  
+      // lift the scooper accordingly
+      if (PS4.getAnalogButton(R2)) { 
+  
+        // get the scoop command value by mapping R2 input to min and max ranges specified from testing
+//        int scoop_val = map(255 - PS4.getAnalogButton(R2), 0, 255, MIN_SCOOP, MAX_SCOOP);
+        int scoop_val2 = map(PS4.getAnalogButton(R2), 0, 255, MIN_SCOOP, MAX_SCOOP);
+  
+        // write this value to the scooper
+  //      scoop.write(scoop_val);
+  
+  //      Serial.println(scoop_val);
+  
+        // add the contribution from the R2
+//        scoop_write += scoop_val;
+
+          // offset vals
+          scoop_write = scoop_write - scoop_val2;
+        
+      }
+
+      scoop.write(scoop_write);
     }
+    // write the combined value to the scooper
+//    scoop.write(scoop_write);
 
   }
   
