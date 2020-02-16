@@ -28,8 +28,8 @@ int WHEEL_SPEED = 17;
 Servo scooper;
 
 #define SCOOP_PIN 7
-#define SCOOP_DOWN 60
-#define SCOOP_UP 160
+#define SCOOP_DOWN 110
+#define SCOOP_UP 150
 #define SCOOP_ANGLE 5
 
 int scooper_pos = 90;
@@ -40,8 +40,8 @@ bool detached;
 Servo grabber;
 
 #define GRAB_PIN 2
-#define GRAB_DOWN 80
-#define GRAB_UP 160
+#define GRAB_DOWN 160
+#define GRAB_UP 80
 #define GRAB_ANGLE -5
 
 bool grabber_on;

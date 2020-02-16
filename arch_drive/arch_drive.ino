@@ -39,10 +39,13 @@ void loop(){
   {
     Usb.Task();
 
-//    if (PS4.getButtonClick(R1)){
-//      //Changes the drive mapping system. If cubicmap -> cubic mapping. Else, linear map.
-//      cubicmap = !cubicmap;
-//    }
+    if (PS4.getButtonClick(L3)){
+       cubicmap = true; 
+    }
+
+    if (PS4.getButtonClick(R3)){
+      cubicmap = false;
+    }
     
     if(PS4.getButtonClick(TRIANGLE)){
       //Pressing Triangle turns on the flywheels, pressing it again turns them off.
@@ -103,7 +106,7 @@ void loop(){
       shooter_stop();
     }
   
-
+  
   }
 }
 

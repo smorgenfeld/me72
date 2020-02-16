@@ -36,7 +36,13 @@ void rc_setup(void)
 }
 
 int cubic_map(int x, int motor_min, int joystick_stop, int motor_stop){
-  return (motor_min - motor_stop)/(-joystick_stop)^3 * (x - joystick_stop)^3 + motor_stop;
+  return (motor_min - motor_stop)/pow(-joystick_stop,3) * pow(x - joystick_stop,3) + motor_stop;
+}
+
+int cubic_mapv2(int input) {
+
+  // idk, ask spencer what this means 
+  return 4 * MOTOR_MAX * pow(input - JOYSTICK_MAX / 2, 3) / pow (JOYSTICK_MAX, 3) +  MOTOR_MAX / 2;
 }
 
 
@@ -63,14 +69,17 @@ void drive_screws(bool cubic)
 
     //Check the map mode.
     if(!cubic){
-      //PS4.setLedFlash(10, 10);
+      PS4.setLedFlash(10, 10);
       left_power = map(leftjoystick_reading, JOYSTICK_MIN, JOYSTICK_MAX, MOTOR_MIN, MOTOR_MAX); //Maps analog output of joystick to ForwardsBackwards
       right_power = map(rightjoystick_reading, JOYSTICK_MIN, JOYSTICK_MAX, MOTOR_MIN, MOTOR_MAX); //Maps analog output to ForwardsBackwards levels
     }
 
     else{
-      left_power = cubic_map(leftjoystick_reading, MOTOR_MIN, JOYSTICK_STOP, MOTOR_STOP);
-      right_power = cubic_map(rightjoystick_reading, MOTOR_MIN, JOYSTICK_STOP, MOTOR_STOP);
+      PS4.setLedFlash(0, 0);
+      left_power = cubic_mapv2(leftjoystick_reading);
+      right_power = cubic_mapv2(rightjoystick_reading);
+
+      
     }
 
     //Power the motors based on the computed power.
