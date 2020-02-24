@@ -9,16 +9,16 @@
  3.Connect +5V & GND to UNO 5V & GND
  */
 //Flywheel Motor Pins
-#define E1 3 //M1 Speed Control
-#define E2 5 //M2 Speed Control
-#define M1 22 //M1 Direction Control
-#define M2 23 //M2 Direction Control
+#define E1 5 //M1 Speed Control
+#define E2 3 //M2 Speed Control
+#define M1 23 //M1 Direction Control
+#define M2 22 //M2 Direction Control
 
 
 //Shooter Definitions
 Servo belt;
 
-#define BELT_PIN 35
+#define BELT_PIN 33
 #define BELT_SPEED 180 //Check what this speed it (0 max on direction, 180 max oter direction)
 #define BELT_STOP 95 
 int WHEEL_SPEED = 17;
@@ -86,9 +86,9 @@ void shoot_ball ()
 {
   //Turns on the flywheel to the defined WHEEL_SPEED
   analogWrite (E1,WHEEL_SPEED);
-  digitalWrite(M1,HIGH);    
+  digitalWrite(M1,LOW);    
   analogWrite (E2,WHEEL_SPEED);    
-  digitalWrite(M2,LOW);
+  digitalWrite(M2, HIGH);
 
   if (PS4.getButtonClick(R1)){
     WHEEL_SPEED += 1;
