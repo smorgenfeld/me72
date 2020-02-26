@@ -32,6 +32,10 @@
 // controller max
 #define MAX_CONTROLLER 255
 
+// shooter variables
+#define SHOOTER_MAX 70
+#define SHOOTER_MIN 64
+
 // cam controls
 #define CAM_PIN 3
 #define CAM_STOP 90
@@ -50,14 +54,15 @@ Servo cam;
 
 // Trying to use Serial port to avoid softwareserial
 //
-//**** uncomment
-RoboClaw roboclaw(&Serial,10000);
+//
+RoboClaw roboclaw(&Serial, 10000);
 //
 //
 //
 
 #define address 0x80
- 
+
+// set thresholds above and below the controller rest position
 int Upper_thres = 137;
 int Lower_thres = 117;
 
@@ -66,6 +71,10 @@ int right_power;
 int leftjoystick_reading;
 int rightjoystick_reading;
 int ljX_reading;
+
+// define shooter speed
+int shooter_speed = 65;
+bool shooter_active = false;
 
 // boolean for when the fan is moving forward
 bool fan_forward = true;
@@ -99,15 +108,15 @@ int fan_val = 0;
 void setup() {
 
   // Serial communication
-//  Serial.begin(115200);
+  //  Serial.begin(115200);
 #if !defined(__MIPSEL__)
-//    while (!Serial); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
+  //    while (!Serial); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
 #endif
   if (Usb.Init() == -1) {
-//        Serial.print(F("\r\nOSC did not start"));
+    //        Serial.print(F("\r\nOSC did not start"));
     while (1); // Halt
   }
-//    Serial.print(F("\r\nPS4 Bluetooth Library Started"));
+  //    Serial.print(F("\r\nPS4 Bluetooth Library Started"));
 
   //Serial for RoboClaw
   roboclaw.begin(38400);
@@ -122,7 +131,7 @@ void setup() {
   fan.attach(FAN_PIN, 1000, 2000);
   fan_reverse.attach(FAN_REVERSE_PIN, 1000, 2000);
   scoop.attach(SCOOP_PIN);
-  cam.attach(CAM_PIN, 1000,2000);
+  cam.attach(CAM_PIN, 1000, 2000);
 
 }
 void loop() {
@@ -148,16 +157,16 @@ void loop() {
     }
 
     // lift the scooper accordingly
-      if (PS4.getAnalogButton(L2)) {
+    if (PS4.getAnalogButton(L2)) {
 
-        // get the additional offset contributing from the L2 button (for the extra push)
-        int cam_val = map(PS4.getAnalogButton(L2), 0, 255, CAM_STOP, CAM_FULL);
+      // get the additional offset contributing from the L2 button (for the extra push)
+      int cam_val = map(PS4.getAnalogButton(L2), 0, 255, CAM_STOP, CAM_FULL);
 
-        // add the contribution to the scoop value
-        cam.write(cam_val);
+      // add the contribution to the scoop value
+      cam.write(cam_val);
 
-      }
-   
+    }
+
     // FAN_MODE: check the right joystick setting (make sure it's being set)
     if (rightjoystick_reading > Upper_thres) {
 
@@ -170,7 +179,7 @@ void loop() {
       // write speed to fan
       fan.write(fan_val);
 
-      // set the LED color 
+      // set the LED color
       PS4.setLed(Yellow);
 
     }
@@ -184,7 +193,8 @@ void loop() {
 
       // write this value to the fan
       fan.write(fan_val);
-      
+
+      // set the bell color ;)
       PS4.setLed(Yellow);
 
     }
@@ -194,8 +204,6 @@ void loop() {
 
       // stop the fan
       fan.write(0);
-
-      //PS4.setLed(Yellow);
 
     }
 
@@ -248,17 +256,6 @@ void loop() {
       // start at max position (equilibrium position)
       int scoop_write = MAX_SCOOP;
 
-//      // lift the scooper accordingly taking out, because bump functionality isn't necessary
-//      if (PS4.getAnalogButton(L2)) {
-//
-//        // get the additional offset contributing from the L2 button (for the extra push)
-//        int scoop_val1 = map(PS4.getAnalogButton(L2), 0, 255, 0, MAX_MAX_SCOOP - MAX_SCOOP);
-//
-//        // add the contribution to the scoop value
-//        scoop_write += scoop_val1;
-//
-//      }
-
       // lift the scooper accordingly
       if (PS4.getAnalogButton(R2)) {
 
@@ -271,14 +268,58 @@ void loop() {
       }
 
       // tell the scooper who's boss
-      scoop.write(scoop_write); 
+      scoop.write(scoop_write);
 
     }
 
+    if (PS4.getButtonClick(RIGHT) && shooter_active) {
+
+      // increment shooter speed
+      if (shooter_speed < SHOOTER_MAX) {
+
+        // increment the shooter speed
+        shooter_speed += 1;
+
+      }
+
+      // set power of the flywheels
+      roboclaw.ForwardBackwardM1(address, shooter_speed);
+      roboclaw.ForwardBackwardM2(address, shooter_speed);
+
+    }
+    if (PS4.getButtonClick(LEFT) && shooter_active) {
+
+      // check shooter speed is above minimum value
+      if (shooter_speed > SHOOTER_MIN) {
+
+        // decrease the shooter speed by 1
+        shooter_speed -= 1;
+
+      }
+
+      // set power of the flywheels
+      roboclaw.ForwardBackwardM1(address, shooter_speed);
+      roboclaw.ForwardBackwardM2(address, shooter_speed);
+
+    }
+
+    // to turn the shooter off and on
+    if (PS4.getButtonClick(TRIANGLE)) {
+
+      // invert active shooter condition
+      shooter_active = !shooter_active;
+
+    }
 
   }
 
+
+
 }
+
+
+
+
 
 void endgame() {
 
@@ -297,11 +338,3 @@ void endgame() {
   }
 
 }
-
-// YOU THINK THIS IS A JOKE?!!?!??!?!
-/*int cubic_mapv2(int input) {
-
-  // idk, ask spencer what this means 
-  return 4 * TANK_MAX_F * pow(input - MAX_CONTROLLER / 2, 3) / pow (MAX_CONTROLLER, 3) +  TANK_MAX_F / 2;
-
-}*/
