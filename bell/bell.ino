@@ -32,11 +32,17 @@
 // controller max
 #define MAX_CONTROLLER 255
 
+// cam controls
+#define CAM_PIN 3
+#define CAM_STOP 90
+#define CAM_FULL 180
+
 // servo objects for our motors
 Servo rudder;
 Servo fan;
 Servo fan_reverse;
 Servo scoop;
+Servo cam;
 
 // Roboclaw serial communication using software serial
 //SoftwareSerial serial(24, 25);
@@ -116,6 +122,7 @@ void setup() {
   fan.attach(FAN_PIN, 1000, 2000);
   fan_reverse.attach(FAN_REVERSE_PIN, 1000, 2000);
   scoop.attach(SCOOP_PIN);
+  cam.attach(CAM_PIN, 1000,2000);
 
 }
 void loop() {
@@ -139,6 +146,17 @@ void loop() {
       endgame();
 
     }
+
+    // lift the scooper accordingly
+      if (PS4.getAnalogButton(L2)) {
+
+        // get the additional offset contributing from the L2 button (for the extra push)
+        int cam_val = map(PS4.getAnalogButton(L2), 0, 255, CAM_STOP, CAM_FULL);
+
+        // add the contribution to the scoop value
+        cam.write(cam_val);
+
+      }
    
     // FAN_MODE: check the right joystick setting (make sure it's being set)
     if (rightjoystick_reading > Upper_thres) {
@@ -177,7 +195,7 @@ void loop() {
       // stop the fan
       fan.write(0);
 
-      PS4.setLed(Yellow);
+      //PS4.setLed(Yellow);
 
     }
 
@@ -225,22 +243,21 @@ void loop() {
 
     }
 
-/* when we add the scooper, use the below :)
-    if (PS4.getAnalogButton(L2) || PS4.getAnalogButton(R2)) {
+    if (PS4.getAnalogButton(R2)) {
 
       // start at max position (equilibrium position)
       int scoop_write = MAX_SCOOP;
 
-      // lift the scooper accordingly
-      if (PS4.getAnalogButton(L2)) {
-
-        // get the additional offset contributing from the L2 button (for the extra push)
-        int scoop_val1 = map(PS4.getAnalogButton(L2), 0, 255, 0, MAX_MAX_SCOOP - MAX_SCOOP);
-
-        // add the contribution to the scoop value
-        scoop_write += scoop_val1;
-
-      }
+//      // lift the scooper accordingly taking out, because bump functionality isn't necessary
+//      if (PS4.getAnalogButton(L2)) {
+//
+//        // get the additional offset contributing from the L2 button (for the extra push)
+//        int scoop_val1 = map(PS4.getAnalogButton(L2), 0, 255, 0, MAX_MAX_SCOOP - MAX_SCOOP);
+//
+//        // add the contribution to the scoop value
+//        scoop_write += scoop_val1;
+//
+//      }
 
       // lift the scooper accordingly
       if (PS4.getAnalogButton(R2)) {
@@ -254,10 +271,10 @@ void loop() {
       }
 
       // tell the scooper who's boss
-      scoop.write(scoop_write);
+      scoop.write(scoop_write); 
 
     }
-*/
+
 
   }
 
