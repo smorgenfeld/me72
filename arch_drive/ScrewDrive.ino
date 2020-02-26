@@ -76,8 +76,8 @@ void drive_screws(bool cubic)
 
     else{
       PS4.setLedFlash(0, 0);
-      left_power = cubic_mapv2(leftjoystick_reading);
-      right_power = cubic_mapv2(rightjoystick_reading);
+      left_power = cubic_map(leftjoystick_reading, MOTOR_MIN, JOYSTICK_STOP, MOTOR_STOP);
+      right_power = cubic_map(rightjoystick_reading, MOTOR_MIN, JOYSTICK_STOP, MOTOR_STOP);
 
       
     }
