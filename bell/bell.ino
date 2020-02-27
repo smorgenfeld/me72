@@ -22,9 +22,11 @@
 #define RUDDER_CENTER 85
 
 // define min and max positions for the scooper
+/* original values
 #define MIN_SCOOP 0
+#define MAX_SCOOP 130*/
+#define MIN_SCOOP 20
 #define MAX_SCOOP 130
-#define MAX_MAX_SCOOP 160
 
 // define the min and max speeds for the fan
 #define MIN_FAN 0
@@ -264,18 +266,16 @@ void loop() {
     if (PS4.getAnalogButton(R2)) {
 
       // start at max position (equilibrium position)
-      int scoop_write = MAX_SCOOP;
+//      int scoop_write = MAX_SCOOP;
 
-      // lift the scooper accordingly
-      if (PS4.getAnalogButton(R2)) {
 
         // get the scoop command value by mapping R2 input to min and max ranges specified from testing
-        int scoop_val2 = map(PS4.getAnalogButton(R2), 0, 255, MIN_SCOOP, MAX_SCOOP);
+//        int scoop_val2 = map(PS4.getAnalogButton(R2), 0, 255, MIN_SCOOP, MAX_SCOOP);
 
         // offset vals
-        scoop_write = scoop_write - scoop_val2;
+//      scoop_write = scoop_write - scoop_val2;
 
-      }
+      int scoop_write = map(PS4.getAnalogButton(R2), 0, 255, MIN_SCOOP, MAX_SCOOP);
 
       // tell the scooper who's boss
       scoop.write(scoop_write);
@@ -326,7 +326,6 @@ void loop() {
       }
       else {
         
-        
         PS4.setLed(Blue);  
         
       }
@@ -335,12 +334,7 @@ void loop() {
 
   }
 
-
-
 }
-
-
-
 
 
 void endgame() {
