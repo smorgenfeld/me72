@@ -150,6 +150,13 @@ void loop() {
       // we're Thanos' color now
       PS4.setLed(255, 0, 255);
 
+      // stop the tank treads
+      roboclaw.ForwardBackwardM1(address, TANK_ZERO);
+      roboclaw.ForwardBackwardM2(address, TANK_ZERO);
+
+      // stop the fan
+      fan.write(0);
+
       // THANOS SNAPS...
       endgame();
 
