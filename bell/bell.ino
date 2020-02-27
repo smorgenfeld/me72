@@ -10,6 +10,7 @@
 #include <RoboClaw.h>
 
 // define actuator pins
+#define CAM_PIN 3
 #define SCOOP_PIN 4
 #define FAN_PIN 5
 #define FAN_REVERSE_PIN 6
@@ -33,12 +34,11 @@
 #define MAX_CONTROLLER 255
 
 // shooter variables
-#define SHOOTER_MAX 70
-#define SHOOTER_MIN 64
+#define SHOOTER_MAX 80
+#define SHOOTER_STOP 64
 
 // cam controls
-#define CAM_PIN 3
-#define CAM_STOP 90
+#define CAM_STOP 91
 #define CAM_FULL 180
 
 // servo objects for our motors
@@ -151,6 +151,16 @@ void loop() {
       // we're Thanos' color now
       PS4.setLed(255, 0, 255);
 
+      // stop the tank treads
+      roboclaw.ForwardBackwardM1(address, SHOOTER_STOP);
+      roboclaw.ForwardBackwardM2(address, SHOOTER_STOP);
+
+      // stop the fan
+      fan.write(0);
+
+      // stop the cam
+      cam.write(CAM_STOP);
+
       // THANOS SNAPS...
       endgame();
 
@@ -180,7 +190,7 @@ void loop() {
       fan.write(fan_val);
 
       // set the LED color
-      PS4.setLed(Yellow);
+//      PS4.setLed(Yellow);
 
     }
     else if (rightjoystick_reading < Lower_thres) {
@@ -195,7 +205,7 @@ void loop() {
       fan.write(fan_val);
 
       // set the bell color ;)
-      PS4.setLed(Yellow);
+//      PS4.setLed(Yellow);
 
     }
 
@@ -290,7 +300,7 @@ void loop() {
     if (PS4.getButtonClick(LEFT) && shooter_active) {
 
       // check shooter speed is above minimum value
-      if (shooter_speed > SHOOTER_MIN) {
+      if (shooter_speed > SHOOTER_STOP) {
 
         // decrease the shooter speed by 1
         shooter_speed -= 1;
@@ -308,6 +318,18 @@ void loop() {
 
       // invert active shooter condition
       shooter_active = !shooter_active;
+
+      if(shooter_active) {
+        
+        PS4.setLed(Yellow);  
+
+      }
+      else {
+        
+        
+        PS4.setLed(Blue);  
+        
+      }
 
     }
 
