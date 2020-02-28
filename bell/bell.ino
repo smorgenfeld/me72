@@ -40,7 +40,7 @@
 #define SHOOTER_STOP 64
 
 // cam controls
-#define CAM_STOP 91
+#define CAM_STOP 92
 #define CAM_FULL 180
 
 // servo objects for our motors
@@ -176,6 +176,15 @@ void loop() {
 
       // add the contribution to the scoop value
       cam.write(cam_val);
+
+    }
+
+    if (PS4.getButtonClick(L1)) {
+
+      cam.write(CAM_STOP);
+
+    } else if (PS4.getButtonClick(R1)) {
+      cam.write(CAM_FULL);
 
     }
 
@@ -331,6 +340,8 @@ void loop() {
       }
 
     }
+
+    
 
   }
 
