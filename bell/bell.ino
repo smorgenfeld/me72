@@ -36,8 +36,8 @@
 #define MAX_CONTROLLER 255
 
 // shooter variables
-#define SHOOTER_MAX 80
-#define SHOOTER_STOP 64
+#define SHOOTER_MAX 48
+#define SHOOTER_STOP 0
 
 // cam controls
 #define CAM_STOP 91
@@ -75,7 +75,7 @@ int rightjoystick_reading;
 int ljX_reading;
 
 // define shooter speed
-int shooter_speed = 65;
+int shooter_speed = 2;
 bool shooter_active = false;
 
 // boolean for when the fan is moving forward
@@ -154,8 +154,8 @@ void loop() {
       PS4.setLed(255, 0, 255);
 
       // stop the tank treads
-      roboclaw.ForwardBackwardM1(address, SHOOTER_STOP);
-      roboclaw.ForwardBackwardM2(address, SHOOTER_STOP);
+      roboclaw.ForwardM1(address, SHOOTER_STOP);
+      roboclaw.ForwardM2(address, SHOOTER_STOP);
 
       // stop the fan
       fan.write(0);
@@ -287,14 +287,14 @@ void loop() {
       // increment shooter speed
       if (shooter_speed < SHOOTER_MAX) {
 
-        // increment the shooter speed
+        // increment the shooter speeds
         shooter_speed += 1;
 
       }
 
       // set power of the flywheels
-      roboclaw.ForwardBackwardM1(address, shooter_speed);
-      roboclaw.ForwardBackwardM2(address, shooter_speed);
+      roboclaw.ForwardM1(address, shooter_speed);
+      roboclaw.ForwardM2(address, shooter_speed);
 
     }
     if (PS4.getButtonClick(LEFT) && shooter_active) {
@@ -308,8 +308,8 @@ void loop() {
       }
 
       // set power of the flywheels
-      roboclaw.ForwardBackwardM1(address, shooter_speed);
-      roboclaw.ForwardBackwardM2(address, shooter_speed);
+      roboclaw.ForwardM1(address, shooter_speed);
+      roboclaw.ForwardM2(address, shooter_speed);
 
     }
 
