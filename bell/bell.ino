@@ -25,8 +25,8 @@
 /* original values
 #define MIN_SCOOP 0
 #define MAX_SCOOP 130*/
-#define MIN_SCOOP 15
-#define MAX_SCOOP 145
+#define MIN_SCOOP 65
+#define MAX_SCOOP 180
 
 // define the min and max speeds for the fan
 #define MIN_FAN 0
@@ -38,6 +38,7 @@
 // shooter variables
 #define SHOOTER_MAX 48
 #define SHOOTER_STOP 0
+#define SHOOTER_START 14
 
 // cam controls
 #define CAM_STOP 92
@@ -75,7 +76,7 @@ int rightjoystick_reading;
 int ljX_reading;
 
 // define shooter speed
-int shooter_speed = 2;
+int shooter_speed = SHOOTER_START;
 bool shooter_active = false;
 
 // boolean for when the fan is moving forward
@@ -200,9 +201,6 @@ void loop() {
       // write speed to fan
       fan.write(fan_val);
 
-      // set the LED color
-//      PS4.setLed(Yellow);
-
     }
     else if (rightjoystick_reading < Lower_thres) {
 
@@ -214,9 +212,6 @@ void loop() {
 
       // write this value to the fan
       fan.write(fan_val);
-
-      // set the bell color ;)
-//      PS4.setLed(Yellow);
 
     }
 
@@ -332,10 +327,24 @@ void loop() {
         
         PS4.setLed(Yellow);  
 
+        shooter_speed = SHOOTER_START;
+        
+         // set power of the flywheels
+      roboclaw.ForwardM1(address, shooter_speed);
+      roboclaw.ForwardM2(address, shooter_speed);
+
       }
       else {
         
         PS4.setLed(Blue);  
+
+        // set the new motor speed (turn it off)
+        shooter_speed = 0;
+
+        // set power of the flywheels
+      roboclaw.ForwardM1(address, shooter_speed);
+      roboclaw.ForwardM2(address, shooter_speed);
+        
         
       }
 
