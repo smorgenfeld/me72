@@ -25,7 +25,7 @@
 /* original values
 #define MIN_SCOOP 0
 #define MAX_SCOOP 130*/
-#define MIN_SCOOP 65
+#define MIN_SCOOP 30
 #define MAX_SCOOP 180
 
 // define the min and max speeds for the fan
