@@ -59,7 +59,7 @@ boolean tank_mode = false;
 // Trying to use Serial port to avoid softwareserial
 //
 //**** uncomment
-RoboClaw roboclaw(&Serial,10000);
+RoboClaw roboclaw(&Serial1,10000);
 //
 //
 //

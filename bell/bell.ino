@@ -58,7 +58,7 @@ Servo cam;
 // Trying to use Serial port to avoid softwareserial
 //
 //
-RoboClaw roboclaw(&Serial, 10000);
+RoboClaw roboclaw(&Serial1, 10000);
 //
 //
 //

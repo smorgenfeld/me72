@@ -40,7 +40,7 @@ bool detached;
 Servo grabber;
 
 #define GRAB_PIN 2
-#define GRAB_DOWN 160
+#define GRAB_DOWN 180
 #define GRAB_UP 30
 #define GRAB_ANGLE -5
 
