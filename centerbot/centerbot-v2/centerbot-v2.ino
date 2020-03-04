@@ -10,7 +10,7 @@
 #include <RoboClaw.h>
 
 // define actuator pins
-#define GATE_PIN 3
+#define GATE_PIN 8
 #define SCOOP_PIN 4
 #define FAN_PIN 5
 #define FAN_REVERSE_PIN 6
