@@ -38,6 +38,7 @@
 // define the min and max speeds for the fan
 #define MIN_FAN 0
 #define MAX_FAN 100
+#define FAN_INC 5
 
 // controller max
 #define MAX_CONTROLLER 255
@@ -170,6 +171,12 @@ void loop() {
         roboclaw.ForwardBackwardM1(address, TANK_ZERO);
         roboclaw.ForwardBackwardM2(address, TANK_ZERO);
 
+        // reset the fan when switching to fan mode (since fan could be on from slight modification)
+        fan.write(0);
+
+        // reset the fan value
+        fan_val = 0;
+
         // change PS4 LED to Blue (BLUE = FAN MODE)
         PS4.setLed(Blue);
 
@@ -183,6 +190,9 @@ void loop() {
         rudder.write(RUDDER_CENTER);
         fan.write(0);
 
+        // reset the fan value
+        fan_val = 0;
+
       }
 
       // adjust the robot's state
@@ -192,9 +202,6 @@ void loop() {
 
     // TANK_MODE: check the right joystick setting (make sure it's being set)
     if ((leftjoystick_reading < Lower_thres || leftjoystick_reading > Upper_thres) && tank_mode) {
-
-      // get the correct power setting for the left and right motors
-//      left_power = map(leftjoystick_reading, 0, 255, TANK_MAX_F, TANK_MAX_B); //Maps analog output of joystick to ForwardsBackwards
 
       // left_power using the cubic function
       left_power = cubic_mapv2(MAX_CONTROLLER - leftjoystick_reading);
@@ -214,9 +221,6 @@ void loop() {
     // TANK_MODE: check the right joystick setting (make sure it's being set)
     if ((rightjoystick_reading < Lower_thres || rightjoystick_reading > Upper_thres) && tank_mode) {
 
-      // get the correct power setting for the left and right motors
-//      right_power = map(rightjoystick_reading, 0, 255, TANK_MAX_F, TANK_MAX_B); //Maps analog output to ForwardsBackwards levels
-
       // right_power using the cubic function
       right_power = cubic_mapv2(MAX_CONTROLLER - rightjoystick_reading);
 
@@ -230,6 +234,34 @@ void loop() {
 
       roboclaw.ForwardBackwardM2(address, TANK_ZERO);
 
+    }
+
+    // fan control when the tank treads are on
+    if (PS4.getButtonClick(RIGHT) && tank_mode) {
+
+      // check the new fan value when incrementing
+      if(fan_val + FAN_INC < MAX_FAN) {
+
+        fan_val = fan_val + FAN_INC;
+        
+      } 
+
+      // write the new value
+      fan.write(fan_val);
+      
+    }
+    else if (PS4.getButtonClick(LEFT) && tank_mode) {
+      
+      // check the new fan value when incrementing
+      if(fan_val - FAN_INC >= MIN_FAN) {
+
+        fan_val = fan_val - FAN_INC;
+        
+      }
+
+      // write the new value
+      fan.write(fan_val);
+      
     }
 
     // FAN_MODE: check the right joystick setting (make sure it's being set)
