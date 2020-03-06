@@ -25,8 +25,8 @@
 /* original values
 #define MIN_SCOOP 0
 #define MAX_SCOOP 130*/
-#define MIN_SCOOP 30
-#define MAX_SCOOP 160
+#define MIN_SCOOP 50
+#define MAX_SCOOP 175
 
 // define the min and max speeds for the fan
 //#define MIN_FAN 0
@@ -241,7 +241,7 @@ void loop() {
       int offset_val = RUDDER_CENTER - rudder_val;
 
       // command the rudder, with the offset in the other direction
-      rudder.write(RUDDER_CENTER + offset_val);
+      rudder.write(RUDDER_CENTER - offset_val);
 
     }
 
