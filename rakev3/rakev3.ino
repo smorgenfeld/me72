@@ -23,8 +23,8 @@
 
 // define min and max positions for the scooper
 /* original values
-#define MIN_SCOOP 0
-#define MAX_SCOOP 130*/
+  #define MIN_SCOOP 0
+  #define MAX_SCOOP 130*/
 #define MIN_SCOOP 50
 #define MAX_SCOOP 175
 
@@ -114,7 +114,7 @@ int fan_val = 0;
 void setup() {
 
   // Serial communication
-//  Serial.begin(115200);
+  //  Serial.begin(115200);
 #if !defined(__MIPSEL__)
   //    while (!Serial); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
 #endif
@@ -135,13 +135,13 @@ void setup() {
   // attach motors to their pins
   rudder.attach(RUDDER_PIN);
   fan.attach(FAN_PIN, 1000, 2000);
-//  fan_reverse.attach(FAN_REVERSE_PIN, 1000, 2000);
+  //  fan_reverse.attach(FAN_REVERSE_PIN, 1000, 2000);
   scoop.attach(SCOOP_PIN);
   cam.attach(CAM_PIN, 1000, 2000);
 
 
-   // initialize the fan at zero speed
-   fan.writeMicroseconds(FAN_ZERO);
+  // initialize the fan at zero speed
+  fan.writeMicroseconds(FAN_ZERO);
 
 }
 void loop() {
@@ -174,6 +174,18 @@ void loop() {
       // THANOS SNAPS...
       endgame();
 
+      // idk, just write again to make sure
+
+      // stop the tank treads
+      roboclaw.ForwardM1(address, SHOOTER_STOP);
+      roboclaw.ForwardM2(address, SHOOTER_STOP);
+
+      // stop the fan
+      fan.writeMicroseconds(FAN_ZERO);
+
+      // stop the cam
+      cam.write(CAM_STOP);
+
     }
 
     // lift the scooper accordingly
@@ -200,7 +212,7 @@ void loop() {
     if (rightjoystick_reading > Upper_thres) {
 
       // make sure fan is moving forwards
-//      fan_reverse.write(0);
+      //      fan_reverse.write(0);
 
       // map the fan values from 0 to 180 (in the lower stick area)
       fan_val = map(MAX_CONTROLLER - rightjoystick_reading, 0, MAX_CONTROLLER - Upper_thres, FAN_MAX_REVERSE, FAN_ZERO);
@@ -213,7 +225,7 @@ void loop() {
     else if (rightjoystick_reading < Lower_thres) {
 
       // reverse the damn fan
-//      fan_reverse.write(180);
+      //      fan_reverse.write(180);
 
       // map the magnitude of the fan (in the upper region of stick)
       fan_val = map(Lower_thres - rightjoystick_reading, 0, Lower_thres, FAN_ZERO, FAN_MAX_FORWARD);
@@ -278,14 +290,14 @@ void loop() {
     if (PS4.getAnalogButton(R2)) {
 
       // start at max position (equilibrium position)
-//      int scoop_write = MAX_SCOOP;
+      //      int scoop_write = MAX_SCOOP;
 
 
-        // get the scoop command value by mapping R2 input to min and max ranges specified from testing
-//        int scoop_val2 = map(PS4.getAnalogButton(R2), 0, 255, MIN_SCOOP, MAX_SCOOP);
+      // get the scoop command value by mapping R2 input to min and max ranges specified from testing
+      //        int scoop_val2 = map(PS4.getAnalogButton(R2), 0, 255, MIN_SCOOP, MAX_SCOOP);
 
-        // offset vals
-//      scoop_write = scoop_write - scoop_val2;
+      // offset vals
+      //      scoop_write = scoop_write - scoop_val2;
 
       int scoop_write = map(PS4.getAnalogButton(R2), 0, 255, MIN_SCOOP, MAX_SCOOP);
 
@@ -331,34 +343,31 @@ void loop() {
       // invert active shooter condition
       shooter_active = !shooter_active;
 
-      if(shooter_active) {
-        
-        PS4.setLed(Yellow);  
+      if (shooter_active) {
+
+        PS4.setLed(Yellow);
 
         shooter_speed = SHOOTER_START;
-        
-         // set power of the flywheels
-      roboclaw.ForwardM1(address, shooter_speed);
-      roboclaw.ForwardM2(address, shooter_speed);
+
+        // set power of the flywheels
+        roboclaw.ForwardM1(address, shooter_speed);
+        roboclaw.ForwardM2(address, shooter_speed);
 
       }
       else {
-        
-        PS4.setLed(Blue);  
+
+        PS4.setLed(Blue);
 
         // set the new motor speed (turn it off)
         shooter_speed = 0;
 
         // set power of the flywheels
-      roboclaw.ForwardM1(address, shooter_speed);
-      roboclaw.ForwardM2(address, shooter_speed);
-        
-        
+        roboclaw.ForwardM1(address, shooter_speed);
+        roboclaw.ForwardM2(address, shooter_speed);
+
       }
 
     }
-
-    
 
   }
 
@@ -367,16 +376,31 @@ void loop() {
 
 void endgame() {
 
-  // stay in this for some damn reason...safety? what?
-  while (true) {
+  // check integer for breaking from while loop
+  int check = 0;
+
+  // stay in this for some damn reason...
+  while (check == 0) {
+    
     // idk what this does
     Usb.Task();
+
     //Serial.println("We're in the Endgame now");
 
     if (PS4.connected()) {
 
-      // set LED to purple
+      // set LED to purple cuz thanos
       PS4.setLed(255, 0, 255);
+
+      // SHARE button is the unsnap
+      if (PS4.getButtonClick(SHARE)) {
+
+        // check value goes to 1 to break from the while loop
+        check = 1;
+
+        // reset the LED to blue, because we are back in our previous state
+        PS4.setLed(Blue);
+      }
 
     }
   }
