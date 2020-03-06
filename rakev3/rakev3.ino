@@ -46,6 +46,7 @@
 // cam controls
 #define CAM_STOP 92
 #define CAM_FULL 180
+#define CAM_REVERSE 40
 
 // servo objects for our motors
 Servo rudder;
@@ -188,23 +189,27 @@ void loop() {
 
     }
 
-    // lift the scooper accordingly
-    if (PS4.getAnalogButton(L2)) {
+    // move the came in reverse
+    if (PS4.getAnalogButton(L2) > 30) {
 
       // get the additional offset contributing from the L2 button (for the extra push)
-      int cam_val = map(PS4.getAnalogButton(L2), 0, 255, CAM_STOP, CAM_FULL);
+//      int cam_val = map(PS4.getAnalogButton(L2), 0, 255, CAM_STOP, CAM_FULL);
 
+      PS4.setLed(Red);
+      
       // add the contribution to the scoop value
-      cam.write(cam_val);
+      cam.write(CAM_REVERSE);
 
     }
 
     if (PS4.getButtonClick(L1)) {
 
       cam.write(CAM_STOP);
+      PS4.setLed(Blue);
 
     } else if (PS4.getButtonClick(R1)) {
       cam.write(CAM_FULL);
+      PS4.setLed(Blue);
 
     }
     // go backward on the damn thing
@@ -400,6 +405,7 @@ void endgame() {
 
         // reset the LED to blue, because we are back in our previous state
         PS4.setLed(Blue);
+        
       }
 
     }
