@@ -12,14 +12,14 @@
 // define actuator pins
 #define CAM_PIN 3
 #define SCOOP_PIN 4
-#define FAN_PIN 5
+#define FAN_PIN 8
 #define FAN_REVERSE_PIN 6
 #define RUDDER_PIN 7
 
 // define the rudder min, max, and center position (on 0 to 180 scale)
-#define RUDDER_MIN 30
-#define RUDDER_MAX 150
-#define RUDDER_CENTER 85
+#define RUDDER_MIN 20
+#define RUDDER_MAX 160
+#define RUDDER_CENTER 80
 
 // define min and max positions for the scooper
 /* original values
@@ -29,8 +29,11 @@
 #define MAX_SCOOP 180
 
 // define the min and max speeds for the fan
-#define MIN_FAN 0
-#define MAX_FAN 100
+//#define MIN_FAN 0
+//#define MAX_FAN 100
+#define FAN_MAX_FORWARD 1620
+#define FAN_ZERO 1520
+#define FAN_MAX_REVERSE 1420
 
 // controller max
 #define MAX_CONTROLLER 255
@@ -111,7 +114,7 @@ int fan_val = 0;
 void setup() {
 
   // Serial communication
-  //  Serial.begin(115200);
+//  Serial.begin(115200);
 #if !defined(__MIPSEL__)
   //    while (!Serial); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
 #endif
@@ -132,9 +135,13 @@ void setup() {
   // attach motors to their pins
   rudder.attach(RUDDER_PIN);
   fan.attach(FAN_PIN, 1000, 2000);
-  fan_reverse.attach(FAN_REVERSE_PIN, 1000, 2000);
+//  fan_reverse.attach(FAN_REVERSE_PIN, 1000, 2000);
   scoop.attach(SCOOP_PIN);
   cam.attach(CAM_PIN, 1000, 2000);
+
+
+   // initialize the fan at zero speed
+   fan.writeMicroseconds(FAN_ZERO);
 
 }
 void loop() {
@@ -159,7 +166,7 @@ void loop() {
       roboclaw.ForwardM2(address, SHOOTER_STOP);
 
       // stop the fan
-      fan.write(0);
+      fan.writeMicroseconds(FAN_ZERO);
 
       // stop the cam
       cam.write(CAM_STOP);
@@ -188,30 +195,31 @@ void loop() {
       cam.write(CAM_FULL);
 
     }
-
+    // go backward on the damn thing
     // FAN_MODE: check the right joystick setting (make sure it's being set)
     if (rightjoystick_reading > Upper_thres) {
 
       // make sure fan is moving forwards
-      fan_reverse.write(0);
+//      fan_reverse.write(0);
 
       // map the fan values from 0 to 180 (in the lower stick area)
-      fan_val = map(rightjoystick_reading - Upper_thres, 0, 255 - Upper_thres, MIN_FAN, MAX_FAN);
+      fan_val = map(MAX_CONTROLLER - rightjoystick_reading, 0, MAX_CONTROLLER - Upper_thres, FAN_MAX_REVERSE, FAN_ZERO);
 
       // write speed to fan
-      fan.write(fan_val);
+      fan.writeMicroseconds(fan_val);
 
     }
+    // go forward on the damn thing
     else if (rightjoystick_reading < Lower_thres) {
 
       // reverse the damn fan
-      fan_reverse.write(180);
+//      fan_reverse.write(180);
 
       // map the magnitude of the fan (in the upper region of stick)
-      fan_val = map(Lower_thres - rightjoystick_reading, 0, Lower_thres, MIN_FAN, MAX_FAN);
+      fan_val = map(Lower_thres - rightjoystick_reading, 0, Lower_thres, FAN_ZERO, FAN_MAX_FORWARD);
 
       // write this value to the fan
-      fan.write(fan_val);
+      fan.writeMicroseconds(fan_val);
 
     }
 
@@ -219,7 +227,7 @@ void loop() {
     else {
 
       // stop the fan
-      fan.write(0);
+      fan.writeMicroseconds(FAN_ZERO);
 
     }
 
@@ -230,10 +238,10 @@ void loop() {
       rudder_val = map(ljX_reading, 0, 255, RUDDER_MIN, RUDDER_MAX);
 
       // get the offset of the rudder command from the servo center command
-      int offset_val = rudder_val - RUDDER_CENTER;
+      int offset_val = RUDDER_CENTER - rudder_val;
 
       // command the rudder, with the offset in the other direction
-      rudder.write(RUDDER_CENTER + offset_val);
+      rudder.write(RUDDER_CENTER - offset_val);
 
     }
 
