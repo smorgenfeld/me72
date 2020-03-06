@@ -131,7 +131,7 @@ void setup() {
   delay(2000);
 
   //Set RoboClaw Limits
-  roboclaw.SetMainVoltages(address, 130, 190); //(address, minV, maxV) based on 0.1V, so 130 -> 13V
+  roboclaw.SetMainVoltages(address, 100, 190); //(address, minV, maxV) based on 0.1V, so 130 -> 13V
 
   // attach motors to their pins
   rudder.attach(RUDDER_PIN);
@@ -274,12 +274,12 @@ void loop() {
       //Pressing Up checks the battery's voltage.
       int batt_vol = roboclaw.ReadMainBatteryVoltage(address);
 
-      if (batt_vol > 150) {
+      if (batt_vol > 120) {
         //Voltage is fine, no charge needed.
         PS4.setLed(Green);
       }
 
-      else if (batt_vol > 130) {
+      else if (batt_vol > 100) {
         //Voltage is low but not critically low.
         PS4.setLed(Blue);
         PS4.setLedFlash(100, 100);
