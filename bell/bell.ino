@@ -43,6 +43,7 @@
 // cam controls
 #define CAM_STOP 92
 #define CAM_FULL 180
+#define CAM_REVERSE 40
 
 // servo objects for our motors
 Servo rudder;
@@ -167,6 +168,16 @@ void loop() {
       // THANOS SNAPS...
       endgame();
 
+      // stop the tank treads
+      roboclaw.ForwardM1(address, SHOOTER_STOP);
+      roboclaw.ForwardM2(address, SHOOTER_STOP);
+
+      // stop the fan
+      fan.write(0);
+
+      // stop the cam
+      cam.write(CAM_STOP);
+
     }
 
     // lift the scooper accordingly
@@ -177,6 +188,19 @@ void loop() {
 
       // add the contribution to the scoop value
       cam.write(cam_val);
+
+    }
+
+    // move the came in reverse
+    if (PS4.getAnalogButton(L2) > 30) {
+
+      // get the additional offset contributing from the L2 button (for the extra push)
+//      int cam_val = map(PS4.getAnalogButton(L2), 0, 255, CAM_STOP, CAM_FULL);
+
+      PS4.setLed(Red);
+      
+      // add the contribution to the scoop value
+      cam.write(CAM_REVERSE);
 
     }
 
@@ -359,16 +383,32 @@ void loop() {
 
 void endgame() {
 
-  // stay in this for some damn reason...safety? what?
-  while (true) {
+  // check integer for breaking from while loop
+  int check = 0;
+
+  // stay in this for some damn reason...
+  while (check == 0) {
+    
     // idk what this does
     Usb.Task();
+
     //Serial.println("We're in the Endgame now");
 
     if (PS4.connected()) {
 
-      // set LED to purple
+      // set LED to purple cuz thanos
       PS4.setLed(255, 0, 255);
+
+      // SHARE button is the unsnap
+      if (PS4.getButtonClick(SHARE)) {
+
+        // check value goes to 1 to break from the while loop
+        check = 1;
+
+        // reset the LED to blue, because we are back in our previous state
+        PS4.setLed(Blue);
+        
+      }
 
     }
   }
