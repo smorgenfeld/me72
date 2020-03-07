@@ -23,8 +23,8 @@
 
 // define min and max positions for the scooper
 /* original values
-#define MIN_SCOOP 0
-#define MAX_SCOOP 130*/
+  #define MIN_SCOOP 0
+  #define MAX_SCOOP 130*/
 #define MIN_SCOOP 30
 #define MAX_SCOOP 180
 
@@ -195,10 +195,10 @@ void loop() {
     if (PS4.getAnalogButton(L2) > 30) {
 
       // get the additional offset contributing from the L2 button (for the extra push)
-//      int cam_val = map(PS4.getAnalogButton(L2), 0, 255, CAM_STOP, CAM_FULL);
+      //      int cam_val = map(PS4.getAnalogButton(L2), 0, 255, CAM_STOP, CAM_FULL);
 
       PS4.setLed(Red);
-      
+
       // add the contribution to the scoop value
       cam.write(CAM_REVERSE);
 
@@ -294,14 +294,14 @@ void loop() {
     if (PS4.getAnalogButton(R2)) {
 
       // start at max position (equilibrium position)
-//      int scoop_write = MAX_SCOOP;
+      //      int scoop_write = MAX_SCOOP;
 
 
-        // get the scoop command value by mapping R2 input to min and max ranges specified from testing
-//        int scoop_val2 = map(PS4.getAnalogButton(R2), 0, 255, MIN_SCOOP, MAX_SCOOP);
+      // get the scoop command value by mapping R2 input to min and max ranges specified from testing
+      //        int scoop_val2 = map(PS4.getAnalogButton(R2), 0, 255, MIN_SCOOP, MAX_SCOOP);
 
-        // offset vals
-//      scoop_write = scoop_write - scoop_val2;
+      // offset vals
+      //      scoop_write = scoop_write - scoop_val2;
 
       int scoop_write = map(PS4.getAnalogButton(R2), 0, 255, MIN_SCOOP, MAX_SCOOP);
 
@@ -347,34 +347,34 @@ void loop() {
       // invert active shooter condition
       shooter_active = !shooter_active;
 
-      if(shooter_active) {
-        
-        PS4.setLed(Yellow);  
+      if (shooter_active) {
+
+        PS4.setLed(Yellow);
 
         shooter_speed = SHOOTER_START;
-        
-         // set power of the flywheels
-      roboclaw.ForwardM1(address, shooter_speed);
-      roboclaw.ForwardM2(address, shooter_speed);
+
+        // set power of the flywheels
+        roboclaw.ForwardM1(address, shooter_speed);
+        roboclaw.ForwardM2(address, shooter_speed);
 
       }
       else {
-        
-        PS4.setLed(Blue);  
+
+        PS4.setLed(Blue);
 
         // set the new motor speed (turn it off)
         shooter_speed = 0;
 
         // set power of the flywheels
-      roboclaw.ForwardM1(address, shooter_speed);
-      roboclaw.ForwardM2(address, shooter_speed);
-        
-        
+        roboclaw.ForwardM1(address, shooter_speed);
+        roboclaw.ForwardM2(address, shooter_speed);
+
+
       }
 
     }
 
-    
+
 
   }
 
@@ -388,7 +388,7 @@ void endgame() {
 
   // stay in this for some damn reason...
   while (check == 0) {
-    
+
     // idk what this does
     Usb.Task();
 
@@ -407,7 +407,7 @@ void endgame() {
 
         // reset the LED to blue, because we are back in our previous state
         PS4.setLed(Blue);
-        
+
       }
 
     }
