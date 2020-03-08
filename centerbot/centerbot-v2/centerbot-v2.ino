@@ -43,6 +43,13 @@
 // controller max
 #define MAX_CONTROLLER 255
 
+// arcade tank
+# define ARCADE true
+int leftVal = 0;
+int rightVal = 0;
+# define RIGHT_OFFSET 1
+# define LEFT_OFFSET 1
+
 // servo objects for our motors
 Servo rudder;
 Servo fan;
@@ -89,7 +96,7 @@ USB Usb;
 BTD Btd(&Usb); // You have to create the Bluetooth Dongle instance like so
 
 //*
-//* DO NOT UNCOMMENT THE NEXT LINE, WE NO LONGER WANT TO PAIR
+//* DO NOT UNCOMMENT THE NEXT LINE, WE NO LONGER WANT TO PAIR ok boomer
 //PS4BT PS4(&Btd, PAIR);
 //*
 //*
@@ -200,40 +207,72 @@ void loop() {
 
     }
 
-    // TANK_MODE: check the right joystick setting (make sure it's being set)
-    if ((leftjoystick_reading < Lower_thres || leftjoystick_reading > Upper_thres) && tank_mode) {
+    if (tank_mode && !ARCADE) {
+      // TANK_MODE: check the right joystick setting (make sure it's being set)
+      if ((leftjoystick_reading < Lower_thres || leftjoystick_reading > Upper_thres) && tank_mode) {
+  
+        // left_power using the cubic function
+        left_power = cubic_mapv2(MAX_CONTROLLER - leftjoystick_reading);
+  
+        // set power of left tank motor
+        roboclaw.ForwardBackwardM1(address, left_power);
+  
+      }
+  
+      // if it's not getting the signal, set left tank power to zero
+      else if (tank_mode) {
+  
+        roboclaw.ForwardBackwardM1(address, TANK_ZERO);
+  
+      }
+  
+      // TANK_MODE: check the right joystick setting (make sure it's being set)
+      if ((rightjoystick_reading < Lower_thres || rightjoystick_reading > Upper_thres) && tank_mode) {
+  
+        // right_power using the cubic function
+        right_power = cubic_mapv2(MAX_CONTROLLER - rightjoystick_reading);
+  
+        // set power of right tank motor
+        roboclaw.ForwardBackwardM2(address, right_power);
+  
+      }
+  
+      // if it's not getting the signal, set right tank power to zero
+      else if (tank_mode) {
+  
+        roboclaw.ForwardBackwardM2(address, TANK_ZERO);
+  
+      }
+    }
+    else if (tank_mode) { // ARCADE drive scheme
+      left_power = TANK_ZERO;
+      right_power = TANK_ZERO;
+      rightVal = MAX_CONTROLLER / 2;
+      leftVal = MAX_CONTROLLER / 2;
 
-      // left_power using the cubic function
-      left_power = cubic_mapv2(MAX_CONTROLLER - leftjoystick_reading);
+      // aquire controller input
+      if (ljX_reading < Lower_thres || ljX_reading > Upper_thres) {
+        leftVal = ljX_reading;
+      }
+      if (rightjoystick_reading < Lower_thres || rightjoystick_reading > Upper_thres) {
+        rightVal = rightjoystick_reading;
+      }
+      
+      // blend controller inputs; do the arcade drive math (cubic)
+      // right_power = cubic_mapv2(MAX_CONTROLLER - (rightjoystick_reading - ljX_reading + MAX_CONTROLLER) / 2) * RIGHT_OFFSET;
+      // left_power = cubic_mapv2(MAX_CONTROLLER - (rightjoystick_reading + ljX_reading) / 2) * LEFT_OFFSET;
 
-      // set power of left tank motor
+      // blend controller inputs; do the arcade drive math (linear)
+      right_power = map(MAX_CONTROLLER - (rightjoystick_reading - ljX_reading + MAX_CONTROLLER) / 2,0,MAX_CONTROLLER, 0, TANK_MAX_F) * RIGHT_OFFSET;
+      left_power = map(MAX_CONTROLLER - (rightjoystick_reading + ljX_reading) / 2,0,MAX_CONTROLLER, 0, TANK_MAX_F) * LEFT_OFFSET;
+      
+      // limit the power to reasonable ranges (just in case...)
+      right_power = max(TANK_MAX_B, min(TANK_MAX_F, right_power));
+      left_power = max(TANK_MAX_B, min(TANK_MAX_F, left_power));
+
+      // set motor powers
       roboclaw.ForwardBackwardM1(address, left_power);
-
-    }
-
-    // if it's not getting the signal, set left tank power to zero
-    else if (tank_mode) {
-
-      roboclaw.ForwardBackwardM1(address, TANK_ZERO);
-
-    }
-
-    // TANK_MODE: check the right joystick setting (make sure it's being set)
-    if ((rightjoystick_reading < Lower_thres || rightjoystick_reading > Upper_thres) && tank_mode) {
-
-      // right_power using the cubic function
-      right_power = cubic_mapv2(MAX_CONTROLLER - rightjoystick_reading);
-
-      // set power of right tank motor
       roboclaw.ForwardBackwardM2(address, right_power);
-
-    }
-
-    // if it's not getting the signal, set right tank power to zero
-    else if (tank_mode) {
-
-      roboclaw.ForwardBackwardM2(address, TANK_ZERO);
-
     }
 
     // fan control when the tank treads are on
