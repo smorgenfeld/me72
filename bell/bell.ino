@@ -25,8 +25,9 @@
 /* original values
   #define MIN_SCOOP 0
   #define MAX_SCOOP 130*/
-#define MIN_SCOOP 30
+#define MIN_SCOOP 40
 #define MAX_SCOOP 180
+#define BUTTON_BAP 120
 
 // define the min and max speeds for the fan
 #define MIN_FAN 0
@@ -79,6 +80,9 @@ int ljX_reading;
 // define shooter speed
 int shooter_speed = SHOOTER_START;
 bool shooter_active = false;
+
+// button bapping mode
+bool button_bap_mode = false;
 
 // boolean for when the fan is moving forward
 bool fan_forward = true;
@@ -181,15 +185,15 @@ void loop() {
     }
 
     // lift the scooper accordingly
-    if (PS4.getAnalogButton(L2)) {
-
-      // get the additional offset contributing from the L2 button (for the extra push)
-      int cam_val = map(PS4.getAnalogButton(L2), 0, 255, CAM_STOP, CAM_FULL);
-
-      // add the contribution to the scoop value
-      cam.write(cam_val);
-
-    }
+//    if (PS4.getAnalogButton(L2)) {
+//
+//      // get the additional offset contributing from the L2 button (for the extra push)
+//      int cam_val = map(PS4.getAnalogButton(L2), 0, 255, CAM_STOP, CAM_FULL);
+//
+//      // add the contribution to the scoop value
+//      cam.write(cam_val);
+//
+//    }
 
     // move the came in reverse
     if (PS4.getAnalogButton(L2) > 30) {
@@ -207,9 +211,11 @@ void loop() {
     if (PS4.getButtonClick(L1)) {
 
       cam.write(CAM_STOP);
+      PS4.setLed(Blue);
 
     } else if (PS4.getButtonClick(R1)) {
       cam.write(CAM_FULL);
+      PS4.setLed(Blue);
 
     }
 
@@ -291,7 +297,7 @@ void loop() {
 
     }
 
-    if (PS4.getAnalogButton(R2)) {
+    if (PS4.getAnalogButton(R2) && !button_bap_mode) {
 
       // start at max position (equilibrium position)
       //      int scoop_write = MAX_SCOOP;
@@ -338,6 +344,31 @@ void loop() {
       // set power of the flywheels
       roboclaw.ForwardM1(address, shooter_speed);
       roboclaw.ForwardM2(address, shooter_speed);
+
+    }
+
+    // if we click the down button and are not in button bap mode, we want to enter it
+    if (PS4.getButtonClick(DOWN)) {
+
+      if (!button_bap_mode) {
+
+        // change to button bap mode
+        button_bap_mode = true;
+
+        // write the button bap position to the scooper
+        scoop.write(BUTTON_BAP);
+
+      }
+
+      else {
+
+        // change out of button bap mode
+        button_bap_mode = false;
+
+        // change back to the original scooper position
+        scoop.write(MIN_SCOOP);
+
+      }
 
     }
 

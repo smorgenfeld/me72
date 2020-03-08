@@ -26,7 +26,8 @@
   #define MIN_SCOOP 0
   #define MAX_SCOOP 130*/
 #define MIN_SCOOP 50
-#define MAX_SCOOP 175
+#define MAX_SCOOP 180
+#define BUTTON_BAP 140
 
 // define the min and max speeds for the fan
 //#define MIN_FAN 0
@@ -82,6 +83,9 @@ int ljX_reading;
 // define shooter speed
 int shooter_speed = SHOOTER_START;
 bool shooter_active = false;
+
+// button bapping mode
+bool button_bap_mode = false;
 
 // boolean for when the fan is moving forward
 bool fan_forward = true;
@@ -193,10 +197,10 @@ void loop() {
     if (PS4.getAnalogButton(L2) > 30) {
 
       // get the additional offset contributing from the L2 button (for the extra push)
-//      int cam_val = map(PS4.getAnalogButton(L2), 0, 255, CAM_STOP, CAM_FULL);
+      //      int cam_val = map(PS4.getAnalogButton(L2), 0, 255, CAM_STOP, CAM_FULL);
 
       PS4.setLed(Red);
-      
+
       // add the contribution to the scoop value
       cam.write(CAM_REVERSE);
 
@@ -292,7 +296,7 @@ void loop() {
 
     }
 
-    if (PS4.getAnalogButton(R2)) {
+    if (PS4.getAnalogButton(R2) && !button_bap_mode) {
 
       // start at max position (equilibrium position)
       //      int scoop_write = MAX_SCOOP;
@@ -342,6 +346,32 @@ void loop() {
 
     }
 
+    // if we click the down button and are not in button bap mode, we want to enter it
+    if (PS4.getButtonClick(DOWN)) {
+
+      if (!button_bap_mode) {
+
+        // change to button bap mode
+        button_bap_mode = true;
+
+        // write the button bap position to the scooper
+        scoop.write(BUTTON_BAP);
+
+      }
+
+      else {
+
+        // change out of button bap mode
+        button_bap_mode = false;
+
+        // change back to the original scooper position
+        scoop.write(MIN_SCOOP);
+
+      }
+
+    }
+
+
     // to turn the shooter off and on
     if (PS4.getButtonClick(TRIANGLE)) {
 
@@ -386,7 +416,7 @@ void endgame() {
 
   // stay in this for some damn reason...
   while (check == 0) {
-    
+
     // idk what this does
     Usb.Task();
 
@@ -405,7 +435,7 @@ void endgame() {
 
         // reset the LED to blue, because we are back in our previous state
         PS4.setLed(Blue);
-        
+
       }
 
     }
