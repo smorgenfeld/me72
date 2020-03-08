@@ -431,16 +431,32 @@ void loop() {
 
 void endgame() {
 
-  // stay in this for some damn reason...safety? what?
-  while (true) {
+  // check integer for breaking from while loop
+  int check = 0;
+
+  // stay in this for some damn reason...
+  while (check == 0) {
+
     // idk what this does
     Usb.Task();
+
     //Serial.println("We're in the Endgame now");
 
     if (PS4.connected()) {
 
-      // set LED to purple
+      // set LED to purple cuz thanos
       PS4.setLed(255, 0, 255);
+
+      // SHARE button is the unsnap
+      if (PS4.getButtonClick(SHARE)) {
+
+        // check value goes to 1 to break from the while loop
+        check = 1;
+
+        // reset the LED to blue, because we are back in our previous state
+        PS4.setLed(Blue);
+
+      }
 
     }
   }
