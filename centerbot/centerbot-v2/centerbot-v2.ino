@@ -271,8 +271,8 @@ void loop() {
       left_power = max(TANK_MAX_B, min(TANK_MAX_F, left_power));
 
       // set motor powers
-      roboclaw.ForwardBackwardM1(address, left_power);
-      roboclaw.ForwardBackwardM2(address, right_power);
+      roboclaw.ForwardBackwardM2(address, left_power);
+      roboclaw.ForwardBackwardM1(address, right_power);
     }
 
     // fan control when the tank treads are on
