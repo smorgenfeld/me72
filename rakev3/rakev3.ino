@@ -27,7 +27,7 @@
   #define MAX_SCOOP 130*/
 #define MIN_SCOOP 50
 #define MAX_SCOOP 180
-#define BUTTON_BAP 140
+#define BUTTON_BAP 130
 
 // define the min and max speeds for the fan
 //#define MIN_FAN 0
