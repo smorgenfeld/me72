@@ -34,6 +34,7 @@
 #define MIN_SCOOP 50
 #define MAX_SCOOP 150
 #define MAX_MAX_SCOOP 170
+#define BUTTON_BAP 80
 
 // define the min and max speeds for the fan
 #define MIN_FAN 0
@@ -86,6 +87,9 @@ int ljX_reading;
 
 // boolean for when the fan is moving forward
 bool fan_forward = true;
+
+// button bapping mode
+bool button_bap_mode = false;
 
 // Satisfy the IDE, which needs to see the include statment in the ino too.
 #ifdef dobogusinclude
@@ -373,7 +377,7 @@ void loop() {
 
     }
 
-    if (PS4.getAnalogButton(L2) || PS4.getAnalogButton(R2)) {
+    if ((PS4.getAnalogButton(L2) || PS4.getAnalogButton(R2) ) && !button_bap_mode) {
 
       // start at max position (equilibrium position)
       int scoop_write = MAX_SCOOP;
@@ -422,6 +426,31 @@ void loop() {
       else {
         //Voltage is critically low and the system needs to be shut off.
         PS4.setLed(Red);
+      }
+
+    }
+
+    // if we click the down button and are not in button bap mode, we want to enter it
+    if (PS4.getButtonClick(DOWN)) {
+
+      if (!button_bap_mode) {
+
+        // change to button bap mode
+        button_bap_mode = true;
+
+        // write the button bap position to the scooper
+        scoop.write(BUTTON_BAP);
+
+      }
+
+      else {
+
+        // change out of button bap mode
+        button_bap_mode = false;
+
+        // change back to the original scooper position
+        scoop.write(MAX_SCOOP-MIN_SCOOP);
+
       }
 
     }
