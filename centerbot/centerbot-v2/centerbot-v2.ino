@@ -31,9 +31,9 @@
 #define GATE_CLOSE 180
 
 // define min and max positions for the scooper
-#define MIN_SCOOP 0
-#define MAX_SCOOP 130
-#define MAX_MAX_SCOOP 160
+#define MIN_SCOOP 50
+#define MAX_SCOOP 150
+#define MAX_MAX_SCOOP 170
 
 // define the min and max speeds for the fan
 #define MIN_FAN 0
@@ -49,6 +49,7 @@ int leftVal = 0;
 int rightVal = 0;
 # define RIGHT_OFFSET 1
 # define LEFT_OFFSET 1
+# define THROTTLE_BIAS 1.5
 
 // servo objects for our motors
 Servo rudder;
@@ -255,7 +256,7 @@ void loop() {
         leftVal = ljX_reading;
       }
       if (rightjoystick_reading < Lower_thres || rightjoystick_reading > Upper_thres) {
-        rightVal = rightjoystick_reading;
+        rightVal = ((rightjoystick_reading - MAX_CONTROLLER / 2) * THROTTLE_BIAS) + MAX_CONTROLLER / 2;
       }
       
       // blend controller inputs; do the arcade drive math (cubic)
