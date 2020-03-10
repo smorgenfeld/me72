@@ -17,7 +17,7 @@
 #define RUDDER_PIN 7
 
 // define the rudder min, max, and center position (on 0 to 180 scale)
-#define RUDDER_MIN 30
+#define RUDDER_MIN 20
 #define RUDDER_MAX 150
 #define RUDDER_CENTER 85
 
@@ -25,9 +25,9 @@
 /* original values
   #define MIN_SCOOP 0
   #define MAX_SCOOP 130*/
-#define MIN_SCOOP 40
-#define MAX_SCOOP 180
-#define BUTTON_BAP 120
+#define MIN_SCOOP 3
+#define MAX_SCOOP 170
+#define BUTTON_BAP 80
 
 // define the min and max speeds for the fan
 #define MIN_FAN 0
