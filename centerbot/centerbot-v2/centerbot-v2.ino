@@ -31,10 +31,10 @@
 #define GATE_CLOSE 180
 
 // define min and max positions for the scooper
-#define MIN_SCOOP 50
+#define MIN_SCOOP 0
 #define MAX_SCOOP 150
 #define MAX_MAX_SCOOP 170
-#define BUTTON_BAP 80
+#define BUTTON_BAP 95
 
 // define the min and max speeds for the fan
 #define MIN_FAN 0
@@ -449,7 +449,7 @@ void loop() {
         button_bap_mode = false;
 
         // change back to the original scooper position
-        scoop.write(MAX_SCOOP-MIN_SCOOP);
+        scoop.write(MAX_SCOOP);
 
       }
 
