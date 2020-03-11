@@ -25,8 +25,8 @@
 /* original values
   #define MIN_SCOOP 0
   #define MAX_SCOOP 130*/
-#define MIN_SCOOP 3
-#define MAX_SCOOP 170
+#define MIN_SCOOP 15
+#define MAX_SCOOP 175
 #define BUTTON_BAP 80
 
 // define the min and max speeds for the fan
@@ -226,7 +226,7 @@ void loop() {
       fan_reverse.write(0);
 
       // map the fan values from 0 to 180 (in the lower stick area)
-      fan_val = map(rightjoystick_reading - Upper_thres, 0, 255 - Upper_thres, MIN_FAN, MAX_FAN);
+      fan_val = map(rightjoystick_reading - Upper_thres, 0, 255 - Upper_thres, MIN_FAN, MAX_FAN/2);
 
       // write speed to fan
       fan.write(fan_val);
@@ -248,8 +248,11 @@ void loop() {
     // if we're between ranges, stop the ESC motor
     else {
 
+      // new fan value
+      fan_val = 0;
+
       // stop the fan
-      fan.write(0);
+      fan.write(fan_val);
 
     }
 
