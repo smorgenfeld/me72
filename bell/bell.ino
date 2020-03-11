@@ -31,8 +31,7 @@
 
 // define the min and max speeds for the fan
 #define MIN_FAN 0
-#define MAX_FAN 100
-
+#define MAX_FAN 66
 // controller max
 #define MAX_CONTROLLER 255
 
