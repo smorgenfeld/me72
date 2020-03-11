@@ -17,9 +17,9 @@
 #define RUDDER_PIN 7
 
 // define the rudder min, max, and center position (on 0 to 180 scale)
-#define RUDDER_MIN 30
-#define RUDDER_MAX 150
-#define RUDDER_CENTER 85
+#define RUDDER_MIN 25
+#define RUDDER_MAX 135
+#define RUDDER_CENTER 75
 
 // define the ZERO, MAX Forward, and MAX Backward speed for RS550
 #define TANK_MAX_F 127
