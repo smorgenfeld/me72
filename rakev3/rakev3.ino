@@ -25,7 +25,7 @@
 /* original values
   #define MIN_SCOOP 0
   #define MAX_SCOOP 130*/
-#define MIN_SCOOP 20
+#define MIN_SCOOP 15
 #define MAX_SCOOP 180
 #define BUTTON_BAP 130
 
